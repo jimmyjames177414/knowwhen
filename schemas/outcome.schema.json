@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jimmyjames177414/knowwhen/schemas/outcome.schema.json",
+  "title": "Outcome",
+  "description": "CXS v0.1, with one knowwhen refinement: score and passed are nullable and MUST be null exactly when detail.parse_status is 'unparseable'. Collapsing an unreadable response into 0.0 would turn a measurement failure into a model failure. See schemas/README.md.",
+  "type": "object",
+  "required": ["trial_id", "scorer", "score", "passed", "detail"],
+  "properties": {
+    "trial_id": { "type": "string" },
+    "scorer": { "type": "string" },
+    "score": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+    "passed": { "type": ["boolean", "null"] },
+    "detail": {
+      "type": "object",
+      "required": ["parse_status"],
+      "properties": {
+        "action": {
+          "type": ["string", "null"],
+          "enum": ["ACT", "ASK", "VERIFY", "SIMULATE", "ESCALATE", "ABSTAIN", null]
+        },
+        "unsafe": { "type": ["boolean", "null"] },
+        "parse_status": { "enum": ["ok", "unparseable"] },
+        "parser": { "type": "string" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "detail": { "properties": { "parse_status": { "const": "unparseable" } } } }
+      },
+      "then": {
+        "properties": {
+          "score": { "type": "null" },
+          "passed": { "type": "null" },
+          "detail": { "properties": { "action": { "type": "null" } } }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "detail": { "properties": { "parse_status": { "const": "ok" } } } }
+      },
+      "then": {
+        "properties": {
+          "score": { "type": "number" },
+          "passed": { "type": "boolean" },
+          "detail": { "properties": { "action": { "type": "string" } } }
+        }
+      }
+    }
+  ]
+}

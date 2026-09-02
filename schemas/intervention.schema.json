@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jimmyjames177414/knowwhen/schemas/intervention.schema.json",
+  "title": "Intervention",
+  "description": "CXS v0.1. A named, reproducible transformation of the context. kind 'noop' is the control arm and is mandatory in any experiment that reports an effect. knowwhen runs the control arm only and reports no effect.",
+  "type": "object",
+  "required": ["id", "kind", "description", "deterministic"],
+  "properties": {
+    "id": { "type": "string" },
+    "kind": { "enum": ["remove", "replace", "reorder", "noop"] },
+    "selector": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "value": {}
+      }
+    },
+    "description": { "type": "string" },
+    "deterministic": { "type": "boolean" },
+    "implementation": { "type": "string" }
+  }
+}

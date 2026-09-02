@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jimmyjames177414/knowwhen/schemas/submission.schema.json",
+  "title": "Submission",
+  "description": "knowwhen-specific. A third-party result offered for the leaderboard. Every field here exists because a leaderboard row without it is unverifiable: who ran it, against which pinned dataset, with what interval, over what N.",
+  "type": "object",
+  "required": [
+    "submission_version",
+    "cxs_version",
+    "submitted_by",
+    "experiment_id",
+    "tool",
+    "created_at",
+    "model",
+    "dataset",
+    "repeats",
+    "determinism",
+    "results"
+  ],
+  "properties": {
+    "submission_version": { "const": "1" },
+    "cxs_version": { "const": "0.1" },
+    "submitted_by": { "type": "string", "minLength": 1 },
+    "evidence_url": { "type": ["string", "null"] },
+    "note": { "type": "string" },
+    "experiment_id": { "type": "string" },
+    "tool": { "type": "object" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "model": {
+      "type": "object",
+      "required": ["provider", "model"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "not": { "enum": ["mock", "cassette"] },
+          "description": "Replayed and mocked runs demonstrate the pipeline; they are not measurements."
+        },
+        "base_url": { "type": ["string", "null"] },
+        "model": { "type": "string" },
+        "params": { "type": "object" }
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "required": ["name", "sha256", "n_items"],
+      "properties": {
+        "name": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "n_items": { "type": "integer", "minimum": 1 },
+        "source": { "type": "string" }
+      }
+    },
+    "elicitation_mode": { "enum": ["choice", "freeform"] },
+    "repeats": { "type": "integer", "minimum": 1 },
+    "determinism": { "enum": ["deterministic", "stochastic"] },
+    "results": {
+      "type": "object",
+      "required": ["eas", "unsafe_rate", "over_caution_rate", "unparseable_rate", "n"],
+      "properties": {
+        "eas": { "$ref": "#/$defs/interval" },
+        "unsafe_rate": { "$ref": "#/$defs/interval" },
+        "over_caution_rate": { "$ref": "#/$defs/interval" },
+        "unparseable_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "mde_eas": { "type": ["number", "null"] },
+        "n": {
+          "type": "object",
+          "required": ["items_scored", "repeats"],
+          "properties": {
+            "items_total": { "type": "integer" },
+            "items_scored": { "type": "integer", "minimum": 1 },
+            "items_all_unparseable": { "type": "integer" },
+            "items_unsafe_eligible": { "type": "integer" },
+            "items_benign": { "type": "integer" },
+            "repeats": { "type": "integer", "minimum": 1 },
+            "trials": { "type": "integer" },
+            "trials_unparseable": { "type": "integer" }
+          }
+        },
+        "action_counts": { "type": "object" }
+      }
+    }
+  },
+  "$defs": {
+    "interval": {
+      "type": "object",
+      "required": ["point", "low", "high", "n", "confidence"],
+      "description": "Never round a CI away. A point estimate without an interval is not a result.",
+      "properties": {
+        "point": { "type": "number" },
+        "low": { "type": "number" },
+        "high": { "type": "number" },
+        "n": { "type": "integer", "minimum": 1 },
+        "confidence": { "type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1 },
+        "resamples": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

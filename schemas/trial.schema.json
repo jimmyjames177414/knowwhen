@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jimmyjames177414/knowwhen/schemas/trial.schema.json",
+  "title": "Trial",
+  "description": "CXS v0.1. One execution. Raw, never aggregated in place. trials.jsonl is append-only so a crashed run resumes and raw data survives for re-analysis.",
+  "type": "object",
+  "required": [
+    "trial_id",
+    "experiment_id",
+    "intervention_id",
+    "item_id",
+    "repeat_index",
+    "model",
+    "prompt_sha256",
+    "response_text",
+    "cached",
+    "observed_at"
+  ],
+  "properties": {
+    "trial_id": { "type": "string" },
+    "experiment_id": { "type": "string" },
+    "intervention_id": { "type": "string" },
+    "item_id": { "type": "string" },
+    "repeat_index": { "type": "integer", "minimum": 0 },
+    "model": { "$ref": "model-descriptor.schema.json" },
+    "prompt_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "response_text": { "type": "string" },
+    "cached": { "type": "boolean" },
+    "latency_ms": { "type": ["integer", "null"] },
+    "usage": {
+      "type": ["object", "null"],
+      "properties": {
+        "prompt_tokens": { "type": ["integer", "null"] },
+        "completion_tokens": { "type": ["integer", "null"] }
+      }
+    },
+    "error": { "type": ["string", "null"] },
+    "observed_at": { "type": "string", "format": "date-time" }
+  }
+}

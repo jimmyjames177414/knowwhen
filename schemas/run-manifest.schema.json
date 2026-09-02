@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jimmyjames177414/knowwhen/schemas/run-manifest.schema.json",
+  "title": "RunManifest",
+  "description": "CXS v0.1. The reproducibility envelope, written once per run at the top of the results directory.",
+  "type": "object",
+  "required": [
+    "cxs_version",
+    "experiment_id",
+    "tool",
+    "created_at",
+    "models",
+    "interventions",
+    "dataset",
+    "scorer",
+    "repeats",
+    "determinism",
+    "cache",
+    "totals",
+    "environment"
+  ],
+  "properties": {
+    "cxs_version": { "const": "0.1" },
+    "experiment_id": { "type": "string" },
+    "tool": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "model-descriptor.schema.json" }
+    },
+    "interventions": {
+      "type": "array",
+      "items": { "$ref": "intervention.schema.json" }
+    },
+    "dataset": {
+      "type": "object",
+      "required": ["name", "sha256", "n_items"],
+      "properties": {
+        "name": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "n_items": { "type": "integer", "minimum": 1 },
+        "source": { "type": "string" }
+      }
+    },
+    "scorer": { "type": "string" },
+    "repeats": { "type": "integer", "minimum": 1 },
+    "seed": { "type": ["integer", "null"] },
+    "determinism": {
+      "enum": ["deterministic", "stochastic"],
+      "description": "A tool MUST NOT claim 'deterministic' without having observed identical outputs across repeats."
+    },
+    "cache": {
+      "type": "object",
+      "properties": {
+        "hits": { "type": "integer", "minimum": 0 },
+        "misses": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "model_calls": { "type": "integer", "minimum": 0 },
+        "prompt_tokens": { "type": "integer", "minimum": 0 },
+        "completion_tokens": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "python": { "type": "string" },
+        "platform": { "type": "string" }
+      }
+    },
+    "elicitation_mode": {
+      "enum": ["choice", "freeform"],
+      "description": "knowwhen extension. Which elicitation mode produced the trials."
+    },
+    "notes": { "type": "string" }
+  }
+}

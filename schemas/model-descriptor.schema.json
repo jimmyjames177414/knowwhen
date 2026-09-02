@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jimmyjames177414/knowwhen/schemas/model-descriptor.schema.json",
+  "title": "ModelDescriptor",
+  "description": "CXS v0.1. Identifies what was asked, precisely enough to re-run.",
+  "type": "object",
+  "required": ["provider", "model", "params", "observed_at"],
+  "properties": {
+    "provider": { "type": "string" },
+    "base_url": { "type": ["string", "null"] },
+    "model": { "type": "string" },
+    "params": {
+      "type": "object",
+      "description": "Recorded verbatim. seed is nullable because many providers ignore it, and a run must state whether it was deterministic rather than implying it.",
+      "properties": {
+        "temperature": { "type": "number" },
+        "top_p": { "type": "number" },
+        "max_tokens": { "type": "integer" },
+        "seed": { "type": ["integer", "null"] }
+      }
+    },
+    "observed_at": { "type": "string", "format": "date-time" }
+  }
+}
