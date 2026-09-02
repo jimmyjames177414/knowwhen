@@ -75,6 +75,10 @@ files = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# The repo root, so `from tests.conftest import ...` resolves under `uv run pytest` as
+# well as `python -m pytest`. Without it the console-script entry point has no cwd on
+# sys.path and every test module that imports a fixture helper fails to collect.
+pythonpath = ["."]
 markers = [
     "live: needs a real model endpoint and credentials; deselected by default with -m 'not live'",
 ]
