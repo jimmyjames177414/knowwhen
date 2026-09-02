@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Submit a result
+    url: https://github.com/jimmyjames177414/knowwhen/blob/main/docs/leaderboard.md
+    about: Ran it against a real model? That is a pull request, not an issue. The leaderboard page has the steps.
+  - name: Security issue
+    url: https://github.com/jimmyjames177414/knowwhen/blob/main/SECURITY.md
+    about: Do not open a public issue. Use private vulnerability reporting.

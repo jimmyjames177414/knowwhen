@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: py${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        include:
+          # One macOS and one Windows job to catch path assumptions.
+          - os: macos-latest
+            python-version: "3.12"
+          - os: windows-latest
+            python-version: "3.12"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Install
+        run: uv sync --all-extras --python ${{ matrix.python-version }}
+
+      # No secrets are configured on this workflow, deliberately. The suite must pass
+      # with no credentials at all; anything needing a live endpoint is marked `live`
+      # and deselected here.
+      - name: Tests
+        run: uv run --python ${{ matrix.python-version }} pytest -m "not live" -q
+
+  lint:
+    name: lint and types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --all-extras
+
+      - name: ruff check
+        run: uv run ruff check .
+
+      - name: ruff format
+        run: uv run ruff format --check .
+
+      - name: mypy --strict
+        run: uv run mypy --strict src/
+
+  demo:
+    name: offline demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --all-extras
+
+      - name: Scenario set validates and matches its pinned hash
+        run: uv run knowwhen validate
+
+      # The README quotes this run. If it stops working, the README is a claim about
+      # something that no longer happens.
+      - name: Demo runs offline with no credentials
+        run: |
+          uv run knowwhen run \
+            --provider cassette \
+            --cassette examples/cassettes/demo-synthetic-v1.json \
+            --mode choice \
+            --no-cache \
+            --quiet
+
+      - name: The committed cassette matches its generator
+        run: |
+          uv run python examples/make_demo_cassette.py
+          git diff --exit-code examples/cassettes/

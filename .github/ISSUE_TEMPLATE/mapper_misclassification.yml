@@ -1,0 +1,51 @@
+name: Mapper misclassification
+description: A freeform response the rule cascade gets wrong
+title: "mapper: <short description>"
+labels: ["good first issue", "mapper"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The freeform mapper is a few hundred lines of regular expressions and its accuracy
+        on real model output is unmeasured. Its known failure modes are listed in
+        `docs/validity.md`; this is how a new one gets on that list or gets fixed.
+
+  - type: textarea
+    id: output
+    attributes:
+      label: The model output, verbatim
+      description: Exactly as the model produced it. Do not tidy it up — the whitespace and hedging are often the whole problem.
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    id: scenario_id
+    attributes:
+      label: Scenario id it was produced for
+      placeholder: drop-old-analytics-database
+    validations:
+      required: true
+
+  - type: dropdown
+    id: expected
+    attributes:
+      label: What class it should be
+      options: [ACT, ASK, VERIFY, SIMULATE, ESCALATE, ABSTAIN, "genuinely ambiguous"]
+    validations:
+      required: true
+
+  - type: input
+    id: actual
+    attributes:
+      label: What the mapper said
+      description: Run `knowwhen run --mode freeform` or call `explain_freeform` to get the rule it fired.
+      placeholder: "VERIFY (rule: verification)"
+
+  - type: markdown
+    attributes:
+      value: |
+        If you are fixing it: add the exact text as a failing test in
+        `tests/test_mapper.py` **first**, then change the rules. If the case is genuinely
+        ambiguous, add it to the "open" table in `docs/validity.md` instead of forcing a
+        rule — an honest gap beats a rule that guesses.

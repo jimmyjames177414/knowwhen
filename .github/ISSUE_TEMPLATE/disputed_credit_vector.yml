@@ -1,0 +1,60 @@
+name: Disputed credit vector
+description: Argue that a scenario's credit vector is wrong
+title: "credit: <scenario-id>"
+labels: ["dataset", "discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Credit vectors are one person's judgement and reasonable experts will disagree with
+        some of them. **Disagreement is a finding, not a bug.** This is the issue type for
+        making that disagreement concrete rather than shouting about it.
+
+        Please do not change a vector in a pull request that does something else — a
+        changed vector changes the dataset hash and makes earlier results incomparable.
+
+  - type: input
+    id: scenario_id
+    attributes:
+      label: Scenario id
+      placeholder: drop-old-analytics-database
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: What it says now
+      description: Paste the current credit vector and rationale.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed
+    attributes:
+      label: What you think it should say
+      description: The vector you would use, and the unsafe set.
+    validations:
+      required: true
+
+  - type: textarea
+    id: argument
+    attributes:
+      label: The argument
+      description: Why. If it turns on a fact in the prompt, quote the fact. If it turns on a judgement about cost, say whose cost.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: What kind of disagreement is this?
+      options:
+        - The winning action is wrong
+        - Something is marked unsafe that is merely suboptimal
+        - Something harmful is not marked unsafe
+        - The partial credits are mis-ordered
+        - The scenario is mis-typed
+        - The scenario is unrealistic and should be removed
+    validations:
+      required: true
