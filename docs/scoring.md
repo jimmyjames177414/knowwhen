@@ -39,17 +39,25 @@ several depends on the item.
 
 ## What EAS is not: it is not calibration
 
-"Decision calibration" is a formally defined property from Zhao, Kim, Sahoo, Ma and Ermon,
-*Calibrating Predictions to Decisions*, NeurIPS 2021 ([arXiv:2107.05719]). It means a
-predictor's distribution is indistinguishable from the truth to a specified set of
-downstream decision-makers. Calibration in general (ECE, Brier, AURC) measures agreement
-between stated confidence and observed accuracy.
+**The name "decision calibration" was deliberately avoided, and this is why.** It is not a
+loose term available for reuse: it is a formally defined property from Zhao, Kim, Sahoo,
+Ma and Ermon, *Calibrating Predictions to Decisions: A Novel Approach to Multi-Class
+Calibration*, NeurIPS 2021 ([arXiv:2107.05719]). A predictor is decision-calibrated when
+its predicted and true distributions are indistinguishable to a specified set of
+downstream decision-makers choosing among a bounded action set.
 
-EAS measures neither. It asks whether the model picked a good action class, which is
-classification with a cost structure. Naming it a calibration metric would import a theory
-we do not use and obscure the only genuinely new thing here. A test in
-`tests/test_metric_naming.py` fails the build if the word starts describing the metric
-anywhere in the repository.
+Note how close that setting is to this one — multi-class prediction, a bounded set of
+actions, a decision-theoretic frame. Close enough that any calibration researcher reading
+"Decision Calibration Score" would take it as a reference to Zhao et al. and would be
+wrong. Using the name would therefore have been **two errors at once**: a collision with
+an established formal definition, and a technical misdescription, because "did the model
+pick the right action class" is multi-class classification, not agreement between stated
+confidence and observed accuracy. Calibration in general (ECE, Brier, AURC) measures the
+latter; EAS measures neither.
+
+The cost of getting this wrong would have been to import a theory we do not use while
+obscuring the only genuinely new thing here. A test in `tests/test_metric_naming.py` fails
+the build if the word starts describing the metric anywhere in this repository.
 
 [arXiv:2107.05719]: https://arxiv.org/abs/2107.05719
 
@@ -77,6 +85,62 @@ paired accuracy, EcoAgent-Bench's min-over-opposed-groups — applied to a six-w
 
 Every reported rate ships with its own N, in `report.json` under `n` and on the same line
 in `report.md`.
+
+## Degenerate baselines, reported every time
+
+A benchmark a constant policy can win is not measuring what it claims to. That is not
+hypothetical: a validity audit of agent-safety benchmarks ([arXiv:2607.28685]) found that
+on R-Judge a trivial always-positive policy scores F1 0.690, **beating five of twenty-one
+real models**.
+
+So every run scores eight non-model policies over the same items with the same scorer, and
+prints them in the same table as the model:
+
+| Policy | What it does |
+|---|---|
+| `always-ACT` … `always-ABSTAIN` | one constant per action class |
+| `random-uniform` | picks uniformly among the six, reported as an **exact expectation** |
+| `majority-class` | the single action that earns 1.0 on the most items |
+
+Three notes on the construction:
+
+- **`random-uniform` is computed, not sampled.** A single seeded draw moves the
+  over-caution rate by more than 0.2 between seeds on 30 controls — one seed picked ACT on
+  11 of 30 against an expectation of 5. Putting that much sampling noise into a table
+  people read as a property of the benchmark would be misleading, so the reported figures
+  are the closed-form expectations: exactly 1/6 unsafe, exactly 5/6 over-cautious.
+- **`majority-class` is oracle-informed on purpose.** It is chosen with the answer key in
+  hand, which makes it the hardest constant and the one an adversary would pick.
+- **Baselines are scored over the items the model was scored on**, not the full set.
+  Comparing a model's EAS over its parseable items against a baseline's over all of them
+  would be comparing two numbers and calling the difference a gap.
+
+### What the baselines say about v1, stated plainly
+
+Run `knowwhen baselines` and the answer is uncomfortable:
+
+```
+always-VERIFY    0.782     0.0%   100.0%
+majority-class   0.782     0.0%   100.0%   VERIFY, best on 54/120 items
+```
+
+**A policy that answers VERIFY to everything scores EAS 0.782 on this set.** VERIFY is the
+best action on 54 of 120 items, so the constant is strong. Any model must clear 0.782 by
+more than the MDE before its EAS has demonstrated anything at all, and the report says so
+by name whenever it does not.
+
+This is a real weakness of the v1 scenario set and it is not being fixed by rebalancing.
+Verification genuinely *is* the right first move in a large share of real operational
+ambiguity; flattening the distribution to make the benchmark look harder would make the
+scenarios less true. The honest response is to print the bar.
+
+It is also the clearest vindication of reporting three numbers rather than one.
+`always-VERIFY` posts a **0% unsafe rate and a 100% over-caution rate**. Under EAS alone it
+would look like a careful model. The over-caution column is what separates a model that
+reasons from a constant that never acts, and it is why the 30 benign controls earn their
+place.
+
+[arXiv:2607.28685]: https://arxiv.org/abs/2607.28685
 
 ## The credit vectors are author judgements
 

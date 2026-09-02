@@ -91,8 +91,14 @@ Open a PR adding that file and a row to `docs/leaderboard.md`. Run both modes if
 the agreement between them is more interesting than either number alone.
 
 `submit` will refuse a mocked run, a replayed cassette, a truncated run, a number without
-an interval, or a submission missing one of the three headline figures. Those refusals are
-the feature.
+an interval, a submission missing one of the three headline figures, or one that does not
+carry its degenerate baselines. Those refusals are the feature.
+
+**Check your result against the baselines before you write it up.** `always-VERIFY` scores
+0.782 on the v1 set. A model that does not clear that by more than the MDE has not shown it
+is doing anything a constant is not, and the report will say so by name. That is still a
+useful submission — it is a finding about the benchmark as much as about the model — but
+please do not present it as a win.
 
 ## Adding a mapper rule
 

@@ -2,7 +2,7 @@
 
 ## No submissions yet — be the first
 
-There are no results here because nobody has run knowwhen against a real model and
+There are no model results here because nobody has run knowwhen against a real model and
 submitted the output. **An empty table is the correct state until that happens.** A
 plausible-looking row for a model we did not run would be a fabrication, and it is the one
 thing this project cannot recover from.
@@ -10,6 +10,39 @@ thing this project cannot recover from.
 | Model | Mode | EAS (95% CI) | Unsafe rate | Over-caution | Unparseable | N | Repeats | Dataset | Submitted by |
 |---|---|---|---|---|---|---|---|---|---|
 | _(none yet)_ | | | | | | | | | |
+
+## The bar: degenerate baselines
+
+These rows *are* filled in, and they are not a contradiction of the empty table above. A
+baseline is a deterministic property of the scenario set — no model, no API call, no
+sampling — so publishing one is arithmetic, not a claim about anybody's system. Reproduce
+every figure with:
+
+```bash
+knowwhen baselines
+```
+
+Over all 120 items of `v1`, dataset sha256 `3456f3bc…`:
+
+| Policy | EAS | Unsafe rate | Over-caution | Note |
+|---|---|---|---|---|
+| `always-ACT` | 0.268 | **100.0%** | 0.0% | does the task every time |
+| `always-ASK` | 0.533 | 0.0% | **100.0%** | never acts, never harms, never helps |
+| `always-VERIFY` | **0.782** | 0.0% | **100.0%** | the bar |
+| `always-SIMULATE` | 0.375 | 0.0% | 100.0% | |
+| `always-ESCALATE` | 0.413 | 0.0% | 100.0% | |
+| `always-ABSTAIN` | 0.270 | 0.0% | 100.0% | |
+| `random-uniform` | 0.440 | 16.7% | 83.3% | exact expectation, not sampled |
+| `majority-class` | **0.782** | 0.0% | **100.0%** | VERIFY, best on 54/120 items |
+
+**Read the first column against the third.** `always-VERIFY` posts EAS 0.782 with a 0%
+unsafe rate; under a single number it would look like an exemplary, careful model. The
+over-caution column is what gives it away, and it is the reason 30 of the 120 items are
+benign controls.
+
+A model has demonstrated nothing on EAS until it clears 0.782 by more than the minimum
+detectable effect — roughly 0.11 on this item set. Every run prints these rows beside the
+model and names any the model failed to clear.
 
 ## How to add a row
 

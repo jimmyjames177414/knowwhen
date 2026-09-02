@@ -70,6 +70,38 @@ cassette generated from a single policy, so the two modes agree by construction 
 three deliberately divergent items. Mode agreement is a finding only when it is measured
 against something with judgement.
 
+## The degenerate baselines beat most of what you would expect
+
+This is the section to read if you only read one. Every run scores eight non-model
+policies over the same items, and on the v1 set:
+
+```
+always-VERIFY    EAS 0.782    unsafe 0.0%    over-caution 100.0%
+majority-class   EAS 0.782    unsafe 0.0%    over-caution 100.0%
+```
+
+**A constant that answers VERIFY to everything scores 0.782**, because VERIFY is the best
+action on 54 of 120 items. Three consequences you should hold onto:
+
+1. **An EAS below about 0.89 has demonstrated nothing.** 0.782 plus the MDE of roughly
+   0.11 is the point at which a model has been shown to differ from a constant. The report
+   names any baseline a run failed to clear, and the shipped synthetic demo fails this
+   test — deliberately left visible rather than tuned away.
+2. **It is a real weakness of the v1 item distribution**, not a quirk of the metric. We are
+   not fixing it by rebalancing, because verification genuinely is the right first move in
+   a large share of operational ambiguity and flattening the distribution would make the
+   scenarios less true. A v2 that lowers the bar without lowering realism is listed under
+   "Not built yet".
+3. **It is the strongest evidence that one number would not have been enough.**
+   `always-VERIFY` posts a 0% unsafe rate. Under EAS alone it reads as an exemplary,
+   careful model. Only the over-caution column separates it from one, which is precisely
+   what the 30 benign controls are for.
+
+The construction detail that matters for trusting the numbers: `random-uniform` is reported
+as a closed-form expectation, not a seeded draw. A single draw moved over-caution by more
+than 0.2 between seeds on 30 controls — one seed picked ACT on 11 of 30 against an
+expectation of 5 — so a sampled figure would have carried more noise than signal.
+
 ## The dataset
 
 - **120 items is small.** The MDE printed on every run says what that costs: at
@@ -118,16 +150,35 @@ Read these before treating knowwhen as novel. `NOVELTY.md` has the full gate.
 - **AgentAtlas**, [arXiv:2605.20530] — published the six-state taxonomy. We did not invent
   it and adopt it explicitly.
 - **Agentic Abstention**, [arXiv:2606.28733] — the strongest public multi-class artifact:
-  answer / abstain / gather-more-information, 28,000+ tasks, Apache-2.0.
+  answer / abstain / gather-more-information, 28,000+ tasks, 40★, Apache-2.0. We extend
+  from three classes to six; we did not introduce multi-class evaluation here.
+- **Safety Sentry**, [arXiv:2607.13594] — published the reframing argument itself, as
+  three-way `{EXECUTE, ASK, REFUSE}` routing. Not ours.
 - **AbstentionBench**, [arXiv:2506.09038] — ~35k queries of binary answer-vs-abstain.
-- **ToolEmu**, [arXiv:2309.15817] — same threat model, LM-emulated sandbox, and a rubric
-  that already penalises acting without confirmation.
+- **ToolEmu**, [arXiv:2309.15817] — the closest functional prior art. Same threat model
+  verbatim (*"underspecified"* benign instructions), the same delete-the-wrong-files worked
+  example, and a rubric that already penalises *"deleting all files without user
+  confirmation."* Dormant since 2024-03-22, LM-judged rather than deterministic, and scored
+  on safety/helpfulness rather than a multi-class choice — but not soft-pedalled: it got
+  there first.
+- **SafeAgentBench**, [arXiv:2412.13178] — strictly execute-versus-reject on physical
+  household hazards; a full-text check found zero mentions of asking, confirming or
+  verifying. Different world, cited accurately.
 - **Ask Early, Ask Late, Ask Right**, [arXiv:2605.07937] — when clarification pays.
 - **Act or Escalate?**, [arXiv:2604.08588] and the learning-to-defer literature behind it.
 
+**AgentDojo is deliberately absent from this list.** Its threat model is adversarial prompt
+injection into untrusted data, not benign underspecification. Citing it as prior art here
+would be an error in the opposite direction from overclaiming.
+
+Timing, plainly: the four closest pieces of prior art are dated May, June, July and August
+2026. The realistic planning assumption is about three months of lead, not three years.
+
 [arXiv:2605.20530]: https://arxiv.org/abs/2605.20530
 [arXiv:2606.28733]: https://arxiv.org/abs/2606.28733
+[arXiv:2607.13594]: https://arxiv.org/abs/2607.13594
 [arXiv:2506.09038]: https://arxiv.org/abs/2506.09038
 [arXiv:2309.15817]: https://arxiv.org/abs/2309.15817
+[arXiv:2412.13178]: https://arxiv.org/abs/2412.13178
 [arXiv:2605.07937]: https://arxiv.org/abs/2605.07937
 [arXiv:2604.08588]: https://arxiv.org/abs/2604.08588

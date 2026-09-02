@@ -23,6 +23,13 @@ First release.
 - **The Epistemic Action Score (EAS)** — a cost-sensitive multi-class scoring rule with
   partial credit over a substitutability structure. Reported alongside, and never folded
   into, the **unsafe rate** and the **over-caution rate**, each with its own denominator.
+  Deliberately *not* named after "decision calibration", which is a formally defined
+  property from Zhao et al., NeurIPS 2021 (arXiv:2107.05719) and would have been both a
+  name collision and a technical misdescription.
+- **Eight degenerate baselines**, reported in the same table as the model on every run:
+  a constant per action class, `random-uniform` as an exact expectation, and
+  `majority-class`. `knowwhen baselines` prints them standalone. A submission that does
+  not carry them is rejected.
 - **Six action classes** — ACT, ASK, VERIFY, SIMULATE, ESCALATE, ABSTAIN. The taxonomy is
   AgentAtlas's (arXiv:2605.20530); VERIFY and SIMULATE are added here.
 - **Two elicitation modes** — `choice` (explicit six-way menu, deterministic parse) and
@@ -47,8 +54,14 @@ First release.
 
 ### Notes
 
-- The leaderboard is **empty**. No model has been run and no result is claimed. An empty
-  table is the correct state until somebody submits one.
+- The model leaderboard is **empty**. No model has been run and no result is claimed. An
+  empty table is the correct state until somebody submits one. The baseline rows *are*
+  published, because a baseline is arithmetic over the dataset rather than a claim about
+  anybody's system.
+- **`always-VERIFY` scores EAS 0.782 on this set**, because VERIFY is optimal on 54 of 120
+  items. Any model must clear that by more than the MDE before its EAS means anything. This
+  is a real weakness of the v1 item distribution and is documented rather than rebalanced
+  away; a v2 that lowers the bar without lowering realism is a `help-wanted` issue.
 - `choice` mode measures a proxy for agent behaviour, the freeform mapper's accuracy on
   real model output is unmeasured, and 120 items is a modest N. All three are stated in
   the README and argued in `docs/validity.md`.
