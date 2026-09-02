@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Benchmark runs. Only real runs belong here, and they are never committed
+# by default: a committed run is a claim, and claims need provenance.
+results/*
+!results/README.md
+
+# OS
+.DS_Store
+Thumbs.db

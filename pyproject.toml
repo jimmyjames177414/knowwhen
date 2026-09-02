@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "knowwhen"
+version = "0.1.0"
+description = "A benchmark for whether an agent should have started, not whether it finished."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "jimmyjames177414" }]
+keywords = [
+    "llm",
+    "agents",
+    "benchmark",
+    "evaluation",
+    "abstention",
+    "agent-safety",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+dependencies = ["PyYAML>=6.0", "httpx>=0.27"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "jsonschema>=4.21",
+    "types-PyYAML>=6.0",
+]
+
+[project.scripts]
+knowwhen = "knowwhen.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/jimmyjames177414/knowwhen"
+Source = "https://github.com/jimmyjames177414/knowwhen"
+Issues = "https://github.com/jimmyjames177414/knowwhen/issues"
+Changelog = "https://github.com/jimmyjames177414/knowwhen/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/knowwhen"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/knowwhen", "schemas", "tests", "examples", "docs/*.md", "README.md"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["knowwhen", "tests"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unreachable = true
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "live: needs a real model endpoint and credentials; deselected by default with -m 'not live'",
+]
