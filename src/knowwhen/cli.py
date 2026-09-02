@@ -21,6 +21,7 @@ from typing import Any, cast
 
 from knowwhen import __version__
 from knowwhen.actions import ACTION_ORDER, AGENTATLAS_MAPPING, DEFINITIONS
+from knowwhen.baselines import Baseline, run_baselines
 from knowwhen.cache import ResponseCache
 from knowwhen.elicit import MODES, Mode
 from knowwhen.providers import (
@@ -35,7 +36,7 @@ from knowwhen.providers import (
 from knowwhen.report import build_report, render_markdown, render_terminal, write_report
 from knowwhen.runner import plan_dry_run, rescore, run
 from knowwhen.scenarios import SCENARIO_TYPES, ScenarioError, ScenarioSet, load_scenarios
-from knowwhen.score import score_run
+from knowwhen.score import EASReport, score_run
 from knowwhen.submit import SubmissionError, build_submission, validate_run
 
 
@@ -160,6 +161,60 @@ def cmd_validate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _baselines_for(
+    report: EASReport, scenario_set: ScenarioSet, args: argparse.Namespace
+) -> tuple[Baseline, ...]:
+    """Baselines over exactly the items the model was scored on.
+
+    Anything else would compare a model's EAS over its parseable items against a
+    baseline's over all of them, and call the difference a gap.
+    """
+    return run_baselines(
+        scenario_set,
+        item_ids=report.scored_item_ids,
+        repeats=getattr(args, "repeats", 1),
+        seed=getattr(args, "seed", 7),
+        resamples=getattr(args, "resamples", 10_000),
+    )
+
+
+def cmd_baselines(args: argparse.Namespace) -> int:
+    scenario_set = _load_set(args)
+    baselines = run_baselines(scenario_set, repeats=1, seed=args.seed, resamples=args.resamples)
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "dataset_version": scenario_set.version,
+                    "dataset_sha256": scenario_set.sha256,
+                    "n_items": len(scenario_set),
+                    "baselines": [b.as_dict() for b in baselines],
+                },
+                indent=2,
+            )
+        )
+        return 0
+
+    print(f"Degenerate baselines over {len(scenario_set)} items, {scenario_set.version}")
+    print(f"sha256={scenario_set.sha256}")
+    print()
+    print("These are a deterministic property of the scenario set, not a claim about")
+    print("any model. Every run reports them beside the model, over the same items.")
+    print()
+    print(f"{'policy':<18} {'EAS':>7}  {'unsafe':>7}  {'over-caution':>13}   note")
+    for entry in baselines:
+        eas = entry.report.eas
+        unsafe = entry.report.unsafe_rate
+        caution = entry.report.over_caution_rate
+        print(
+            f"{entry.id:<18} {eas.point:>7.3f}  "
+            f"{(unsafe.point * 100 if unsafe else float('nan')):>6.1f}%  "
+            f"{(caution.point * 100 if caution else float('nan')):>12.1f}%   "
+            f"{entry.detail or entry.description}"
+        )
+    return 0
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     scenario_set = _load_set(args)
     mode = cast(Mode, args.mode)
@@ -226,6 +281,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         determinism=result.determinism,
         dataset_version=scenario_set.version,
         synthetic=bool(synthetic),
+        baselines=_baselines_for(report, scenario_set, args),
         notes=(
             "Synthetic or replayed responses: this run demonstrates the pipeline and "
             "measures nothing about any model."
@@ -278,6 +334,13 @@ def cmd_report(args: argparse.Namespace) -> int:
         determinism=str(manifest.get("determinism", "stochastic")),
         dataset_version=str(manifest["dataset"]["name"]).rsplit("-", 1)[-1],
         synthetic=str(model.get("provider")) in {"cassette", "mock"},
+        baselines=run_baselines(
+            subset,
+            item_ids=report.scored_item_ids,
+            repeats=int(manifest.get("repeats", 1)),
+            seed=int(manifest.get("seed") or 7),
+            resamples=args.resamples,
+        ),
         notes=str(manifest.get("notes", "")),
     )
     markdown = render_markdown(report, blob)
@@ -334,6 +397,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_validate = sub.add_parser("validate", help="validate a scenario set and print its hash")
     p_validate.add_argument("--scenarios", metavar="DIR", default=None)
     p_validate.set_defaults(func=cmd_validate)
+
+    p_baselines = sub.add_parser(
+        "baselines",
+        help="score the degenerate policies (constants, random, majority-class)",
+    )
+    _add_scenario_flags(p_baselines)
+    p_baselines.add_argument("--json", action="store_true")
+    p_baselines.add_argument("--seed", type=int, default=7)
+    p_baselines.add_argument("--resamples", type=int, default=10_000)
+    p_baselines.set_defaults(func=cmd_baselines)
 
     p_run = sub.add_parser("run", help="run the benchmark against a provider")
     _add_scenario_flags(p_run)

@@ -134,6 +134,10 @@ class EASReport:
     action_counts: dict[Action, int]
     per_type: tuple[TypeBreakdown, ...]
     dataset_sha256: str
+    #: The items that contributed to EAS. Baselines are scored over exactly these, so a
+    #: model's score over its parseable items is never compared against a baseline's over
+    #: a larger set.
+    scored_item_ids: tuple[str, ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
         """JSON-ready. Deliberately verbose: every rate ships with its own N."""
@@ -316,4 +320,5 @@ def score_run(
         action_counts=counts,
         per_type=tuple(per_type),
         dataset_sha256=scenario_set.sha256,
+        scored_item_ids=tuple(scored_ids),
     )

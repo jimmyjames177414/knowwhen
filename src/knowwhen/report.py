@@ -12,12 +12,22 @@ from pathlib import Path
 from typing import Any
 
 from knowwhen.actions import ACTION_ORDER
+from knowwhen.baselines import Baseline, beaten_by, indistinguishable_from
 from knowwhen.score import EASReport
 
 _UNSAFE_NOTE = (
     "Unsafe rate is **not** folded into EAS. A model can post a respectable EAS while "
     "choosing an actively harmful action on a meaningful fraction of items; that is "
     "exactly the failure an average would hide."
+)
+
+_BASELINE_NOTE = (
+    "Baselines are not an appendix. A validity audit of agent-safety benchmarks "
+    "([arXiv:2607.28685](https://arxiv.org/abs/2607.28685)) found a trivial "
+    "always-positive policy beating five of twenty-one real models on R-Judge, so a "
+    "benchmark that does not print its constants alongside its models is not showing "
+    "you enough to judge it. Every baseline below is scored over **the same items**, "
+    "with the same scorer."
 )
 
 
@@ -31,6 +41,7 @@ def build_report(
     determinism: str,
     dataset_version: str,
     synthetic: bool,
+    baselines: tuple[Baseline, ...] = (),
     notes: str = "",
 ) -> dict[str, Any]:
     """Assemble ``report.json``."""
@@ -42,6 +53,9 @@ def build_report(
     blob["determinism"] = determinism
     blob["dataset_version"] = dataset_version
     blob["synthetic"] = synthetic
+    blob["baselines"] = [b.as_dict() for b in baselines]
+    blob["baselines_beating_model"] = list(beaten_by(report, baselines))
+    blob["baselines_within_mde"] = list(indistinguishable_from(report, baselines))
     blob["notes"] = notes
     return blob
 
@@ -53,6 +67,21 @@ def write_report(directory: Path | str, blob: dict[str, Any], markdown: str) -> 
         fh.write("\n")
     with (directory / "report.md").open("w", encoding="utf-8") as fh:
         fh.write(markdown)
+
+
+def _interval(blob: dict[str, Any] | None, *, percent: bool = False) -> str:
+    """Render a serialised interval. Never collapses to the point estimate alone."""
+    if blob is None:
+        return "n/a"
+    scale, suffix, places = (100.0, "%", 1) if percent else (1.0, "", 3)
+    return (
+        f"{blob['point'] * scale:.{places}f}{suffix} "
+        f"[{blob['low'] * scale:.{places}f}, {blob['high'] * scale:.{places}f}]"
+    )
+
+
+def _rate(interval: Any) -> str:
+    return interval.format(percent=True, places=1) if interval is not None else "n/a"
 
 
 def render_markdown(report: EASReport, blob: dict[str, Any]) -> str:
@@ -102,6 +131,63 @@ def render_markdown(report: EASReport, blob: dict[str, Any]) -> str:
     add("")
     add(_UNSAFE_NOTE)
     add("")
+
+    beaten = list(blob.get("baselines_beating_model") or [])
+    within = list(blob.get("baselines_within_mde") or [])
+    baselines = list(blob.get("baselines") or [])
+    if baselines:
+        if beaten or within:
+            add("## FINDING: this result is not clear of the degenerate baselines")
+            add("")
+        if beaten:
+            add(
+                f"`{blob['model']}` did not beat "
+                + ", ".join(f"`{name}`" for name in beaten)
+                + " on EAS. A policy with no model in it scoring at least as well is a "
+                "result about this benchmark as much as about that model, and it is "
+                "stated here rather than left for a reader to compute."
+            )
+            add("")
+        if within:
+            add(
+                f"`{blob['model']}` beats "
+                + ", ".join(f"`{name}`" for name in within)
+                + f" by less than the minimum detectable effect ({report.mde_eas:.3f}), "
+                "so on this item set that gap has not been shown to exist. Edging past a "
+                "constant policy is not evidence of doing something a constant does not."
+            )
+            add("")
+            add(
+                "The over-caution column is where the difference should show, if there "
+                "is one: a constant that never acts posts 100% there by construction."
+            )
+            add("")
+        add("## Baselines")
+        add("")
+        add(_BASELINE_NOTE)
+        add("")
+        add("| Policy | EAS (95% CI) | Unsafe rate | Over-caution | |")
+        add("|---|---|---|---|---|")
+        add(
+            f"| **{blob['model']}** | {report.eas.format()} | "
+            f"{_rate(report.unsafe_rate)} | {_rate(report.over_caution_rate)} | |"
+        )
+        for entry in baselines:
+            marker = " **>= model**" if entry["id"] in beaten else ""
+            detail = f" ({entry['detail']})" if entry.get("detail") else ""
+            add(
+                f"| `{entry['id']}`{detail} | {_interval(entry['eas'])} | "
+                f"{_interval(entry['unsafe_rate'], percent=True)} | "
+                f"{_interval(entry['over_caution_rate'], percent=True)} |{marker} |"
+            )
+        add("")
+        add(
+            "`always-ASK` is the row to look at when a model's caution looks impressive: "
+            "it posts a 0% unsafe rate and a 100% over-caution rate, because refusing to "
+            "do anything is perfectly safe and perfectly useless. `majority-class` is the "
+            "constant an adversary would pick, chosen with the answer key in hand."
+        )
+        add("")
 
     add("## Parseability")
     add("")
@@ -197,4 +283,30 @@ def render_terminal(report: EASReport, blob: dict[str, Any]) -> str:
     )
     add(f"MDE (EAS)        {report.mde_eas:.3f}   alpha=0.05 power=0.80, ceiling")
     add(f"repeats          {report.repeats}   determinism={blob['determinism']}")
+
+    baselines = list(blob.get("baselines") or [])
+    if baselines:
+        beaten = set(blob.get("baselines_beating_model") or [])
+        within = set(blob.get("baselines_within_mde") or [])
+        add("")
+        add("baselines        same items, same scorer   EAS / unsafe / over-caution")
+        for entry in baselines:
+            if entry["id"] in beaten:
+                marker = "  <-- >= model"
+            elif entry["id"] in within:
+                marker = "  <-- within MDE of model"
+            else:
+                marker = ""
+            add(
+                f"  {entry['id']:<16} {entry['eas']['point']:.3f}   "
+                f"{_pct(entry['unsafe_rate'])}   {_pct(entry['over_caution_rate'])}{marker}"
+            )
+        if beaten or within:
+            add("")
+            add(f"FINDING: {blob['model']} is not clear of the degenerate baselines.")
+            add("         See report.md. A gap under the MDE is not a demonstrated gap.")
     return "\n".join(lines)
+
+
+def _pct(blob: dict[str, Any] | None) -> str:
+    return f"{blob['point'] * 100:5.1f}%" if blob is not None else "  n/a"
