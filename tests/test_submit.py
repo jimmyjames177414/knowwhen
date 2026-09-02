@@ -14,11 +14,26 @@ from typing import Any
 
 import pytest
 
+from knowwhen.baselines import BASELINE_IDS
 from knowwhen.submit import SubmissionError, build_submission, validate_run
 
 
 def _interval(point: float = 0.5) -> dict[str, Any]:
     return {"point": point, "low": point - 0.1, "high": point + 0.1, "n": 90, "confidence": 0.95}
+
+
+def _baselines() -> list[dict[str, Any]]:
+    return [
+        {
+            "id": name,
+            "description": name,
+            "detail": "",
+            "eas": _interval(0.4),
+            "unsafe_rate": _interval(0.1),
+            "over_caution_rate": _interval(0.9),
+        }
+        for name in BASELINE_IDS
+    ]
 
 
 def _manifest(**overrides: Any) -> dict[str, Any]:
@@ -64,6 +79,9 @@ def _report(**overrides: Any) -> dict[str, Any]:
         },
         "dataset_sha256": "a" * 64,
         "synthetic": False,
+        "baselines": _baselines(),
+        "baselines_beating_model": [],
+        "baselines_within_mde": [],
     }
     blob.update(overrides)
     return blob
@@ -183,6 +201,43 @@ def test_a_wrong_cxs_version_is_rejected(tmp_path: Path) -> None:
     check = validate_run(tmp_path)
     assert not check.ok
     assert any("cxs_version" in p for p in check.problems)
+
+
+def test_a_submission_without_baselines_is_rejected(tmp_path: Path) -> None:
+    """A row that does not carry its constants cannot show whether the model beat one."""
+    report = _report()
+    del report["baselines"]
+    _write(tmp_path, _manifest(), report)
+    check = validate_run(tmp_path)
+    assert not check.ok
+    assert any("carries no baselines" in p for p in check.problems)
+
+
+def test_a_submission_with_an_incomplete_baseline_set_is_rejected(tmp_path: Path) -> None:
+    _write(tmp_path, _manifest(), _report(baselines=_baselines()[:3]))
+    check = validate_run(tmp_path)
+    assert not check.ok
+    assert any("missing baselines" in p for p in check.problems)
+
+
+def test_a_baseline_without_an_interval_is_rejected(tmp_path: Path) -> None:
+    thin = _baselines()
+    thin[0] = {**thin[0], "eas": {"point": 0.4}}
+    _write(tmp_path, _manifest(), _report(baselines=thin))
+    check = validate_run(tmp_path)
+    assert not check.ok
+    assert any("every number needs an interval" in p for p in check.problems)
+
+
+def test_the_submission_carries_the_baselines_through(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        _manifest(),
+        _report(baselines_beating_model=["always-VERIFY"]),
+    )
+    submission = build_submission(tmp_path, submitter="someone")
+    assert {b["id"] for b in submission["baselines"]} == set(BASELINE_IDS)
+    assert submission["baselines_beating_model"] == ["always-VERIFY"]
 
 
 def test_a_missing_denominator_block_is_rejected(tmp_path: Path) -> None:

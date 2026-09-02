@@ -15,7 +15,8 @@
     "dataset",
     "repeats",
     "determinism",
-    "results"
+    "results",
+    "baselines"
   ],
   "properties": {
     "submission_version": { "const": "1" },
@@ -78,7 +79,26 @@
         },
         "action_counts": { "type": "object" }
       }
-    }
+    },
+    "baselines": {
+      "type": "array",
+      "minItems": 8,
+      "description": "The degenerate policies, scored over the same items as the model. Required: a row that does not carry them cannot show whether the model beat a constant, and a validity audit (arXiv:2607.28685) found a trivial constant beating five of twenty-one real models on a comparable benchmark.",
+      "items": {
+        "type": "object",
+        "required": ["id", "eas", "unsafe_rate", "over_caution_rate"],
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "detail": { "type": "string" },
+          "eas": { "$ref": "#/$defs/interval" },
+          "unsafe_rate": { "anyOf": [{ "$ref": "#/$defs/interval" }, { "type": "null" }] },
+          "over_caution_rate": { "anyOf": [{ "$ref": "#/$defs/interval" }, { "type": "null" }] }
+        }
+      }
+    },
+    "baselines_beating_model": { "type": "array", "items": { "type": "string" } },
+    "baselines_within_mde": { "type": "array", "items": { "type": "string" } }
   },
   "$defs": {
     "interval": {

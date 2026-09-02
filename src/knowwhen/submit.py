@@ -17,6 +17,7 @@ from typing import Any
 
 from knowwhen import CXS_VERSION
 from knowwhen.actions import ACTION_ORDER
+from knowwhen.baselines import BASELINE_IDS
 
 REQUIRED_MANIFEST_FIELDS: tuple[str, ...] = (
     "cxs_version",
@@ -37,6 +38,9 @@ REQUIRED_REPORT_FIELDS: tuple[str, ...] = (
     "unparseable_rate",
     "n",
     "dataset_sha256",
+    # A row that does not carry its baselines lets a model that loses to always-VERIFY
+    # sit on a leaderboard looking respectable. See docs/scoring.md.
+    "baselines",
 )
 
 _INTERVAL_KEYS: tuple[str, ...] = ("point", "low", "high", "n", "confidence")
@@ -147,6 +151,19 @@ def validate_run(directory: Path | str) -> SubmissionCheck:
     if "stopped early by --max-calls" in str(manifest.get("notes", "")):
         problems.append("run was truncated by --max-calls; submit a complete run")
 
+    baselines = report.get("baselines")
+    if not isinstance(baselines, list) or not baselines:
+        problems.append(
+            "report.json carries no baselines. A submission without the degenerate "
+            "policies beside it cannot show whether the model beat a constant."
+        )
+    else:
+        missing_baselines = sorted(set(BASELINE_IDS) - {str(b.get("id")) for b in baselines})
+        if missing_baselines:
+            problems.append(f"report.json is missing baselines: {', '.join(missing_baselines)}")
+        for entry in baselines:
+            _check_interval(entry.get("eas"), f"baseline {entry.get('id')!r} eas", problems)
+
     n_block = report.get("n")
     if isinstance(n_block, dict):
         if not n_block.get("items_scored"):
@@ -205,4 +222,7 @@ def build_submission(
             "n": report["n"],
             "action_counts": report["action_counts"],
         },
+        "baselines": report["baselines"],
+        "baselines_beating_model": report.get("baselines_beating_model", []),
+        "baselines_within_mde": report.get("baselines_within_mde", []),
     }

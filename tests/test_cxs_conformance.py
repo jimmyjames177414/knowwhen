@@ -14,6 +14,7 @@ import pytest
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
+from knowwhen.baselines import BASELINE_IDS
 from knowwhen.providers.cassette import CassetteProvider
 from knowwhen.runner import run
 from knowwhen.scenarios import ScenarioSet
@@ -185,6 +186,19 @@ def test_a_submission_built_from_a_real_run_validates(
             "ABSTAIN": 1,
         },
         "dataset_sha256": "b" * 64,
+        "baselines": [
+            {
+                "id": name,
+                "description": name,
+                "detail": "",
+                "eas": interval,
+                "unsafe_rate": interval,
+                "over_caution_rate": interval,
+            }
+            for name in BASELINE_IDS
+        ],
+        "baselines_beating_model": [],
+        "baselines_within_mde": [],
     }
     (tmp_path / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     (tmp_path / "report.json").write_text(json.dumps(report), encoding="utf-8")
