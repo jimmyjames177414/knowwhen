@@ -22,3 +22,7 @@ results/*
 # OS
 .DS_Store
 Thumbs.db
+
+# Not committed: this is a library, and pinning dev deps across a 4-Python x 3-OS
+# CI matrix causes more resolution trouble than it prevents. CI runs `uv sync`.
+uv.lock
