@@ -36,6 +36,23 @@ mistakes can be found by reading it, but "auditable" is not "correct".
 What we do report is its **failure to classify at all**: any response no rule matches is
 `unparseable` and appears in the unparseable rate rather than being guessed.
 
+### The mapper's 100% on the demo is circular, and proves nothing
+
+`tests/test_demo.py` shows the mapper classifying all 120 freeform responses in the
+shipped cassette exactly as intended. **That number is circular: the mapper agrees with
+its own generator.** The cassette's freeform text was rendered by
+`examples/make_demo_cassette.py` from a policy file, using phrasings and tool-call formats
+the mapper was written to recognise. A rule cascade matching strings produced to be matched
+by it is a tautology, not a measurement.
+
+What the 100% *is* good for is regression detection: if somebody changes a rule and
+freeform mode silently starts scoring something different, that test fails. That is all it
+claims. **The mapper's accuracy on real model output — hedged, multi-step, sarcastic,
+non-English, or simply phrased in a way nobody anticipated — has never been measured
+against human labels, and until it has, freeform-mode numbers carry an unquantified error
+term.** Measuring it is a `help-wanted` issue and it is the single most valuable thing a
+contributor could do for this project's validity.
+
 ### Known mapper failure modes
 
 Each of these is a real thing models write. The ones marked *handled* have a test in
