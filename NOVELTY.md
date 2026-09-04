@@ -1,4 +1,4 @@
-# NOVELTY.md — KnowWhen
+# NOVELTY.md: KnowWhen
 
 Novelty gate completed 2026-09-02, before any code was written. Every claim is sourced. Where prior
 art beat us to something, this document says so plainly.
@@ -8,7 +8,7 @@ art beat us to something, this document says so plainly.
 ## 1. Problem
 
 Agent benchmarks overwhelmingly measure whether the agent *eventually completes the task*. They do
-not measure whether the agent made the right **epistemic** move first: given ambiguity, missing
+not measure whether the agent made the right **epistemic** move first. Given ambiguity, missing
 identifiers, stale evidence, or an irreversible consequence, should it have acted at all, or asked,
 or verified, or escalated?
 
@@ -18,33 +18,33 @@ or verified, or escalated?
 
 | Project | URL | What it covers |
 |---|---|---|
-| **Agentic Abstention** | [arXiv:2606.28733](https://arxiv.org/abs/2606.28733) | **40★ public code, 28,000+ tasks.** Already benchmarks **three classes** — answer / abstain / gather-more-info. The strongest existing public multi-class artifact |
-| **Safety Sentry** | [arXiv:2607.13594](https://arxiv.org/abs/2607.13594) | Already published **our exact reframing argument**, as `{EXECUTE, ASK, REFUSE}` routing |
-| **ToolEmu** | github.com/ryoungj/ToolEmu | **222★, dormant since 2024-03-22**, but covers our territory *substantially*: threat model is verbatim "underspecified" benign instructions, worked example is the delete-the-wrong-files case, and its rubric already penalises *"deleting all files without user confirmation."* The closest functional prior art |
+| **Agentic Abstention** | [arXiv:2606.28733](https://arxiv.org/abs/2606.28733) | 40★ public code, 28,000+ tasks. Already benchmarks three classes: answer / abstain / gather-more-info. The strongest existing public multi-class artifact |
+| **Safety Sentry** | [arXiv:2607.13594](https://arxiv.org/abs/2607.13594) | Already published our exact reframing argument, as `{EXECUTE, ASK, REFUSE}` routing |
+| **ToolEmu** | github.com/ryoungj/ToolEmu | 222★, dormant since 2024-03-22, but covers our territory *substantially*: threat model is verbatim "underspecified" benign instructions, worked example is the delete-the-wrong-files case, and its rubric already penalises *"deleting all files without user confirmation."* The closest functional prior art |
 | **AbstentionBench** | Meta | ~35k queries; binary answer-vs-abstain |
-| **AgentAbstain** | — | 8 abstention scenario types, all mapping onto our proposed scenario list |
-| **SafeAgentBench** | — | Physical household hazards. **Full-text check: zero mentions of asking, confirming or verifying** — strictly execute-vs-reject |
-| **AgentDojo** | — | Adversarial prompt injection. **A different axis — citing it as prior art here would be an error in the opposite direction** |
-| **R-Judge, AgentHarm** | — | Risk judgement / harmfulness |
+| **AgentAbstain** | n/a | 8 abstention scenario types, all mapping onto our proposed scenario list |
+| **SafeAgentBench** | n/a | Physical household hazards. Full-text check: zero mentions of asking, confirming or verifying. Strictly execute-vs-reject |
+| **AgentDojo** | n/a | Adversarial prompt injection. A different axis, and citing it as prior art here would be an error in the opposite direction |
+| **R-Judge, AgentHarm** | n/a | Risk judgement / harmfulness |
 
 ### The validity trap this benchmark must not fall into
 
-A validity audit of R-Judge found that a trivial **"always positive"** policy beats **5 of 21 real
-models**. A benchmark a constant policy can win is not measuring what it claims to.
+A validity audit of R-Judge found that a trivial "always positive" policy beats 5 of 21 real
+models. A benchmark a constant policy can win is not measuring what it claims to.
 
-knowwhen therefore ships and always reports **degenerate baselines** — `always-ACT`, `always-ASK`,
-`always-VERIFY`, `always-ABSTAIN`, `always-ESCALATE`, seeded `random-uniform`, and `majority-class` —
-in the same table as real models. If a constant policy beats a real model, that is a headline finding
-and will be published as one.
+knowwhen therefore ships degenerate baselines and always reports them in the same table as real
+models: `always-ACT`, `always-ASK`, `always-VERIFY`, `always-ABSTAIN`, `always-ESCALATE`, seeded
+`random-uniform`, and `majority-class`. If a constant policy beats a real model, that is a headline
+finding and will be published as one.
 
 ## 3. Closest academic work
 
-**The single most important finding:**
+One paper matters more than all the rest:
 
-> **AgentAtlas: Beyond Outcome Leaderboards for LLM Agents** — Parsa Mazaheri & Kasra Mazaheri,
+> AgentAtlas: Beyond Outcome Leaderboards for LLM Agents. Parsa Mazaheri & Kasra Mazaheri,
 > [arXiv:2605.20530](https://arxiv.org/abs/2605.20530), 2026-05-19.
 >
-> Publishes a **six-state control-decision taxonomy: Act / Ask / Refuse / Stop / Confirm / Recover**,
+> Publishes a six-state control-decision taxonomy, Act / Ask / Refuse / Stop / Confirm / Recover,
 > with formal definitions (§4.1).
 
 That is close to isomorphic with the originally proposed ACT/ASK/VERIFY/SIMULATE/ESCALATE/ABSTAIN:
@@ -52,26 +52,24 @@ That is close to isomorphic with the originally proposed ACT/ASK/VERIFY/SIMULATE
 and must never imply we did.**
 
 Three facts about AgentAtlas that define our remaining room, all from the paper itself:
-1. §8 verbatim: *"The set is positioned as a measurement-protocol vehicle, **not a public benchmark
-   release**."* No repository was found.
-2. All 1,342 items were generated by **one model** (Claude Opus 4.7).
-3. **No human validation**; mapper accuracy assumed.
+1. §8 verbatim: *"The set is positioned as a measurement-protocol vehicle, not a public benchmark
+   release."* No repository was found.
+2. All 1,342 items were generated by one model (Claude Opus 4.7).
+3. No human validation; mapper accuracy assumed.
 
-Also relevant: the whole **learning-to-defer** subfield; selective prediction (risk–coverage, AURC);
+Also relevant: the whole learning-to-defer subfield; selective prediction (risk-coverage, AURC);
 calibration (ECE, Brier); clarification-question work (CLAM, Abg-CoQA, AmbigQA); Act-or-Escalate and
 EcoAgent-Bench for escalation.
 
 ## 4. Exact overlap
 
-Stated bluntly:
-
-- **The multi-class epistemic taxonomy is published.** AgentAtlas, May 2026.
-- **The reframing argument** ("binary abstention is insufficient; route among epistemic actions") is
+- The multi-class epistemic taxonomy is published. AgentAtlas, May 2026.
+- The reframing argument ("binary abstention is insufficient; route among epistemic actions") is
   published.
-- **Four of six classes are individually well covered.** ASK (six 2026 papers), ABSTAIN
+- Four of six classes are individually well covered. ASK (six 2026 papers), ABSTAIN
   (AbstentionBench ~35k queries, AgentAbstain, Agentic Abstention), ESCALATE (Act-or-Escalate,
   EcoAgent-Bench, plus all of learning-to-defer), ACT (every agent benchmark).
-- **All eight AgentAbstain abstention scenarios** map onto our proposed scenario types.
+- All eight AgentAbstain abstention scenarios map onto our proposed scenario types.
 - Calibration metrics are mature. A "Decision Calibration Score" that is really ECE with a new label
   would be pure re-branding.
 
@@ -79,36 +77,36 @@ Stated bluntly:
 
 Six gaps, each confirmed by an absence I could verify rather than merely fail to find:
 
-1. **No public benchmark scores a 5- or 6-way epistemic action choice.** The taxonomy exists; the
+1. No public benchmark scores a 5- or 6-way epistemic action choice. The taxonomy exists; the
    contributable benchmark does not. Best public multi-class artifact is three-class.
-2. **VERIFY and SIMULATE are not scored as action classes anywhere found.** Four searches plus three
+2. VERIFY and SIMULATE are not scored as action classes anywhere found. Four searches plus three
    `gh search repos` queries returned nothing. Caveat we state openly: *nobody having done it is not
-   evidence it is worth doing* — so the benchmark must demonstrate these classes discriminate
+   evidence it is worth doing*. So the benchmark must demonstrate these classes discriminate
    between models, or admit they don't.
-3. **No scoring rule exists for partially-substitutable, cost-ordered epistemic actions.** This is
+3. No scoring rule exists for partially-substitutable, cost-ordered epistemic actions. This is
    the real research contribution. Existing metrics handle binary (paired accuracy, CAR, AURC),
-   opposed-group minima, or precondition gating. **None handles "VERIFY-then-ACT and ASK-then-ACT are
-   both acceptable, ACT alone is not, and ESCALATE is acceptable-but-costly."** That is a
-   **cost-sensitive multi-class problem with partial credit**, not a calibration problem — and framing
+   opposed-group minima, or precondition gating. None handles "VERIFY-then-ACT and ASK-then-ACT are
+   both acceptable, ACT alone is not, and ESCALATE is acceptable-but-costly." That is a
+   cost-sensitive multi-class problem with partial credit, not a calibration problem, and framing
    it correctly is what keeps this honest.
-4. **Human-validated items.** AgentAtlas's own stated limitation is single-model generation with no
+4. Human-validated items. AgentAtlas's own stated limitation is single-model generation with no
    human validation. Ours are human-authored and human-reviewed, and we say exactly how many.
-5. **A maintained substrate.** ToolEmu is 2.5 years dormant but still being built on.
-6. **Real contribution mechanics.** None of ToolEmu, SafeAgentBench, R-Judge or AgentAbstain accepts
+5. A maintained substrate. ToolEmu is 2.5 years dormant but still being built on.
+6. Real contribution mechanics. None of ToolEmu, SafeAgentBench, R-Judge or AgentAbstain accepts
    third-party scenario contributions through a documented process.
 
 ## 6. Why a developer would choose ours
 
 - You ship an agent that can delete things, spend money, or touch production, and you want to know
-  whether it asks first — not whether it eventually succeeds.
+  whether it asks first, not whether it eventually succeeds.
 - You want to compare models on caution, not capability.
 - You want to add your own scenarios, or submit a result for a model we cannot afford to run.
 
 ## 7. What is actually novel
 
-The **cost-ordered partial-credit scoring rule** (§5.3), the **VERIFY/SIMULATE classes**, a
-**human-authored public dataset**, and a **working contribution path**. That is a benchmark-
-infrastructure contribution plus one genuine modelling contribution.
+The cost-ordered partial-credit scoring rule (§5.3). The VERIFY and SIMULATE classes. A
+human-authored public dataset, and a working contribution path. That is a benchmark-infrastructure
+contribution plus one genuine modelling contribution.
 
 ## 8. What is NOT novel
 
@@ -122,26 +120,26 @@ Calibration. Risky-tool sandboxes. Saying otherwise is disprovable in one search
 | "We introduce a multi-class epistemic action taxonomy" | AgentAtlas, 2026-05-19 | arXiv:2605.20530 |
 | "First to argue binary abstention is insufficient" | Published | arXiv:2605.20530 |
 | "First benchmark for abstention / clarification / escalation" | AbstentionBench, CLAM, Act-or-Escalate | see §2, §3 |
-| "Decision Calibration Score is a new calibration metric" | **"Decision calibration" is a formally defined property from Zhao et al., NeurIPS 2021** — multi-class calibration relative to decision-makers choosing among a bounded action set. Using that name would collide with an established definition *and* be technically wrong, since "did the model pick the right action class" is multi-class classification, not calibration. We use **Epistemic Action Score (EAS)** instead | [arXiv:2107.05719](https://arxiv.org/abs/2107.05719) |
+| "Decision Calibration Score is a new calibration metric" | "Decision calibration" is a formally defined property from Zhao et al., NeurIPS 2021: multi-class calibration relative to decision-makers choosing among a bounded action set. Using that name would collide with an established definition *and* be technically wrong, since "did the model pick the right action class" is multi-class classification, not calibration. We use **Epistemic Action Score (EAS)** instead | [arXiv:2107.05719](https://arxiv.org/abs/2107.05719) |
 | "First to benchmark multi-class epistemic choice" | Agentic Abstention already does three classes with 28,000+ tasks and public code | arXiv:2606.28733 |
 | "First to argue for routing among epistemic actions" | Safety Sentry published exactly this as `{EXECUTE, ASK, REFUSE}` | arXiv:2607.13594 |
 | "No benchmark covers destructive-action caution under underspecification" | ToolEmu's threat model is verbatim "underspecified" instructions and its rubric penalises deleting without confirmation | github.com/ryoungj/ToolEmu |
-| Any leaderboard row for a model we did not run | Fabrication | — |
-| Any score without N, trials and interval | Violates our own reporting rules | — |
+| Any leaderboard row for a model we did not run | Fabrication | n/a |
+| Any score without N, trials and interval | Violates our own reporting rules | n/a |
 
 Banned: "first ever", "the definitive benchmark", "solves agent safety".
 
 ## 10. Recommendation
 
-**GO — the strongest of this batch — with two mandatory reframings.**
+**GO**, the strongest of this batch, with two mandatory reframings.
 
-1. **Cite AgentAtlas in the first screenful** and adopt its taxonomy explicitly, extending it with
+1. Cite AgentAtlas in the first screenful and adopt its taxonomy explicitly, extending it with
    VERIFY and SIMULATE. Position as *"AgentAtlas published the taxonomy and said plainly it was not a
    benchmark release. This is the benchmark."* That is honest, generous, and stronger than a novelty
    claim we cannot defend.
-2. **Rename the metric away from "calibration."** It is a cost-ordered partial-credit scoring rule.
+2. Rename the metric away from "calibration." It is a cost-ordered partial-credit scoring rule.
    Naming it calibration would simultaneously overclaim and under-describe the one genuinely new
    thing here.
 
-**Timing risk, stated plainly:** three of the four closest papers landed in the last four months.
+Timing risk, stated plainly: three of the four closest papers landed in the last four months.
 This space is moving fast and the window is not wide.

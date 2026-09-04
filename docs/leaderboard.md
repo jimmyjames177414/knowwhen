@@ -1,9 +1,9 @@
 # Leaderboard
 
-## No submissions yet — be the first
+## No submissions yet, be the first
 
 There are no model results here because nobody has run knowwhen against a real model and
-submitted the output. **An empty table is the correct state until that happens.** A
+submitted the output. An empty table is the correct state until that happens. A
 plausible-looking row for a model we did not run would be a fabrication, and it is the one
 thing this project cannot recover from.
 
@@ -14,8 +14,8 @@ thing this project cannot recover from.
 ## The bar: degenerate baselines
 
 These rows *are* filled in, and they are not a contradiction of the empty table above. A
-baseline is a deterministic property of the scenario set — no model, no API call, no
-sampling — so publishing one is arithmetic, not a claim about anybody's system. Reproduce
+baseline is a deterministic property of the scenario set (no model, no API call, no
+sampling), so publishing one is arithmetic, not a claim about anybody's system. Reproduce
 every figure with:
 
 ```bash
@@ -35,13 +35,13 @@ Over all 120 items of `v1`, dataset sha256 `3456f3bc…`:
 | `random-uniform` | 0.440 | 16.7% | 83.3% | exact expectation, not sampled |
 | `majority-class` | **0.782** | 0.0% | **100.0%** | VERIFY, best on 54/120 items |
 
-**Read the first column against the third.** `always-VERIFY` posts EAS 0.782 with a 0%
+Read the first column against the third. `always-VERIFY` posts EAS 0.782 with a 0%
 unsafe rate; under a single number it would look like an exemplary, careful model. The
 over-caution column is what gives it away, and it is the reason 30 of the 120 items are
 benign controls.
 
 A model has demonstrated nothing on EAS until it clears 0.782 by more than the minimum
-detectable effect — roughly 0.11 on this item set. Every run prints these rows beside the
+detectable effect, roughly 0.11 on this item set. Every run prints these rows beside the
 model and names any the model failed to clear.
 
 ## How to add a row
@@ -86,14 +86,14 @@ reader:
 | An unknown action class in `action_counts` | Somebody has changed the taxonomy without saying so. |
 | No submitter | A result needs a person attached to it. |
 
-Both modes are welcome and both are reported. If you run both, say so — the agreement
+Both modes are welcome and both are reported. If you run both, say so: the agreement
 between them is more interesting than either number alone, and nobody has measured it yet.
 
 ## Reading a row, when there are rows
 
-- **EAS alone tells you very little.** Read it with the unsafe rate, always.
-- **Check the N and the MDE.** Two models within the MDE of each other are not
+- EAS alone tells you very little. Read it with the unsafe rate, always.
+- Check the N and the MDE. Two models within the MDE of each other are not
   distinguishable on 120 items, whatever the ordering suggests.
-- **Check the dataset hash.** A row against a different hash is a row about a different
+- Check the dataset hash. A row against a different hash is a row about a different
   benchmark.
-- **Check the mode.** `choice` measures a proxy. See `docs/validity.md`.
+- Check the mode. `choice` measures a proxy. See `docs/validity.md`.

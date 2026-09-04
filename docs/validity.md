@@ -6,7 +6,7 @@ result, read it before the README's numbers, not after.
 ## The headline threat: `choice` mode measures a proxy
 
 In `--mode choice` the model is shown an explicit six-way menu with definitions and asked
-to pick one. **That measures behaviour under a menu, not behaviour in an agent loop.**
+to pick one. That measures behaviour under a menu, not behaviour in an agent loop.
 
 A model that reliably picks VERIFY from a labelled list may still barrel straight into a
 `DROP DATABASE` when it is holding real tools and nobody has named the alternatives. The
@@ -33,25 +33,25 @@ expressions, and **its accuracy against human labelling on real model output is
 unmeasured**. We ship it as auditable rules rather than an LLM judge precisely so that its
 mistakes can be found by reading it, but "auditable" is not "correct".
 
-What we do report is its **failure to classify at all**: any response no rule matches is
+What we do report is its failure to classify at all: any response no rule matches is
 `unparseable` and appears in the unparseable rate rather than being guessed.
 
 ### The mapper's 100% on the demo is circular, and proves nothing
 
 `tests/test_demo.py` shows the mapper classifying all 120 freeform responses in the
-shipped cassette exactly as intended. **That number is circular: the mapper agrees with
-its own generator.** The cassette's freeform text was rendered by
+shipped cassette exactly as intended. That number is circular. The mapper agrees with
+its own generator. The cassette's freeform text was rendered by
 `examples/make_demo_cassette.py` from a policy file, using phrasings and tool-call formats
 the mapper was written to recognise. A rule cascade matching strings produced to be matched
 by it is a tautology, not a measurement.
 
 What the 100% *is* good for is regression detection: if somebody changes a rule and
 freeform mode silently starts scoring something different, that test fails. That is all it
-claims. **The mapper's accuracy on real model output — hedged, multi-step, sarcastic,
-non-English, or simply phrased in a way nobody anticipated — has never been measured
-against human labels, and until it has, freeform-mode numbers carry an unquantified error
-term.** Measuring it is a `help-wanted` issue and it is the single most valuable thing a
-contributor could do for this project's validity.
+claims. The mapper's accuracy on real model output has never been measured against human
+labels. Real output is hedged, multi-step, sarcastic, non-English, or simply phrased in a
+way nobody anticipated, and until that measurement exists, freeform-mode numbers carry an
+unquantified error term. Measuring it is a `help-wanted` issue and it is the single most
+valuable thing a contributor could do for this project's validity.
 
 ### Known mapper failure modes
 
@@ -66,11 +66,11 @@ would break.
 | A tool named only in order to decline it ("I won't run `drop_database` until…") | handled |
 | A bare tool name in prose ("I'll run `list_databases` first") | handled |
 | A read that *is* the task, on a read-only item | handled via `task_tool` |
-| Multi-step plans where the stated first step is not the first step actually taken | **open** |
-| Hedged output that names three options without committing to one | **open** — usually `unparseable`, occasionally mis-mapped to whichever signal appears first in precedence |
-| Non-English output | **open** — the patterns are English-only and will not match |
-| A model that asks a clarifying question *and* acts in the same turn | **open** — the tool call wins, which is defensible but not obviously right |
-| Sarcasm, or a refusal expressed as compliance | **open** |
+| Multi-step plans where the stated first step is not the first step actually taken | *open* |
+| Hedged output that names three options without committing to one | *open*, usually `unparseable`, occasionally mis-mapped to whichever signal appears first in precedence |
+| Non-English output | *open*, the patterns are English-only and will not match |
+| A model that asks a clarifying question *and* acts in the same turn | *open*, the tool call wins, which is defensible but not obviously right |
+| Sarcasm, or a refusal expressed as compliance | *open* |
 
 The rule cascade's precedence order is documented in the docstring of `map_freeform` and
 is a set of judgement calls, not a derivation.
@@ -97,27 +97,27 @@ always-VERIFY    EAS 0.782    unsafe 0.0%    over-caution 100.0%
 majority-class   EAS 0.782    unsafe 0.0%    over-caution 100.0%
 ```
 
-**A constant that answers VERIFY to everything scores 0.782**, because VERIFY is the best
+A constant that answers VERIFY to everything scores 0.782, because VERIFY is the best
 action on 54 of 120 items. Three consequences you should hold onto:
 
 1. **An EAS below about 0.89 has demonstrated nothing.** 0.782 plus the MDE of roughly
    0.11 is the point at which a model has been shown to differ from a constant. The report
    names any baseline a run failed to clear, and the shipped synthetic demo fails this
-   test — deliberately left visible rather than tuned away.
-2. **It is a real weakness of the v1 item distribution**, not a quirk of the metric. We are
+   test, deliberately left visible rather than tuned away.
+2. It is a real weakness of the v1 item distribution, not a quirk of the metric. We are
    not fixing it by rebalancing, because verification genuinely is the right first move in
    a large share of operational ambiguity and flattening the distribution would make the
    scenarios less true. A v2 that lowers the bar without lowering realism is listed under
    "Not built yet".
-3. **It is the strongest evidence that one number would not have been enough.**
+3. It is the strongest evidence that one number would not have been enough.
    `always-VERIFY` posts a 0% unsafe rate. Under EAS alone it reads as an exemplary,
    careful model. Only the over-caution column separates it from one, which is precisely
    what the 30 benign controls are for.
 
 The construction detail that matters for trusting the numbers: `random-uniform` is reported
 as a closed-form expectation, not a seeded draw. A single draw moved over-caution by more
-than 0.2 between seeds on 30 controls — one seed picked ACT on 11 of 30 against an
-expectation of 5 — so a sampled figure would have carried more noise than signal.
+than 0.2 between seeds on 30 controls (one seed picked ACT on 11 of 30 against an
+expectation of 5), so a sampled figure would have carried more noise than signal.
 
 ## The dataset
 
@@ -125,15 +125,15 @@ expectation of 5 — so a sampled figure would have carried more noise than sign
   n=116 with the demo's spread, differences below about 0.11 EAS are not detectable. Two
   models a few points apart are not distinguishable on this set, and the report says so
   rather than letting a table imply otherwise.
-- **The credit vectors are one person's judgement.** See `docs/scoring.md`. Experts will
+- The credit vectors are one person's judgement. See `docs/scoring.md`. Experts will
   disagree; disagreement is a finding and the rationales are shipped so it can be argued
   concretely.
-- **Contamination cannot be ruled out.** The scenarios were hand-written in September 2026
+- Contamination cannot be ruled out. The scenarios were hand-written in September 2026
   and have never been published before, but a model trained after they appear on GitHub
   will have seen them. The dataset hash in every manifest at least makes it possible to
   say *which* version a result refers to. See `PROVENANCE.md`.
-- **English only, single turn.** No multi-turn escalation, no non-English scenarios.
-- **Generic infrastructure situations only.** Databases, deployments, billing, access. No
+- English only, single turn. No multi-turn escalation, no non-English scenarios.
+- Generic infrastructure situations only. Databases, deployments, billing, access. No
   medical, legal, physical-safety or embodied scenarios. Nothing here transfers to those
   domains and no claim is made that it does.
 
@@ -155,7 +155,7 @@ A Validity Audit of Agent-Safety Benchmarks* ([arXiv:2607.28685]) found a trivia
 always-positive policy scoring F1 0.690 on R-Judge, beating five of twenty-one real models,
 and found three broad-coverage benchmarks ranking the same eighteen models differently. Its
 recommendation, verbatim, is that *"naming the benchmark, metric, target behavior, and
-model panel is the minimum a safety claim needs"* — which is why every knowwhen number
+model panel is the minimum a safety claim needs"*. That is why every knowwhen number
 ships with its dataset hash, its scorer id, its elicitation mode and its N.
 
 [arXiv:2607.28685]: https://arxiv.org/abs/2607.28685
@@ -164,27 +164,27 @@ ships with its dataset hash, its scorer id, its elicitation mode and its N.
 
 Read these before treating knowwhen as novel. `NOVELTY.md` has the full gate.
 
-- **AgentAtlas**, [arXiv:2605.20530] — published the six-state taxonomy. We did not invent
+- **AgentAtlas**, [arXiv:2605.20530]. Published the six-state taxonomy. We did not invent
   it and adopt it explicitly.
-- **Agentic Abstention**, [arXiv:2606.28733] — the strongest public multi-class artifact:
+- **Agentic Abstention**, [arXiv:2606.28733]. The strongest public multi-class artifact:
   answer / abstain / gather-more-information, 28,000+ tasks, 40★, Apache-2.0. We extend
   from three classes to six; we did not introduce multi-class evaluation here.
-- **Safety Sentry**, [arXiv:2607.13594] — published the reframing argument itself, as
+- **Safety Sentry**, [arXiv:2607.13594]. Published the reframing argument itself, as
   three-way `{EXECUTE, ASK, REFUSE}` routing. Not ours.
-- **AbstentionBench**, [arXiv:2506.09038] — ~35k queries of binary answer-vs-abstain.
-- **ToolEmu**, [arXiv:2309.15817] — the closest functional prior art. Same threat model
+- **AbstentionBench**, [arXiv:2506.09038]. ~35k queries of binary answer-vs-abstain.
+- **ToolEmu**, [arXiv:2309.15817]. The closest functional prior art. Same threat model
   verbatim (*"underspecified"* benign instructions), the same delete-the-wrong-files worked
   example, and a rubric that already penalises *"deleting all files without user
   confirmation."* Dormant since 2024-03-22, LM-judged rather than deterministic, and scored
-  on safety/helpfulness rather than a multi-class choice — but not soft-pedalled: it got
-  there first.
-- **SafeAgentBench**, [arXiv:2412.13178] — strictly execute-versus-reject on physical
+  on safety/helpfulness rather than a multi-class choice. Not soft-pedalled: it got there
+  first.
+- **SafeAgentBench**, [arXiv:2412.13178]. Strictly execute-versus-reject on physical
   household hazards; a full-text check found zero mentions of asking, confirming or
   verifying. Different world, cited accurately.
-- **Ask Early, Ask Late, Ask Right**, [arXiv:2605.07937] — when clarification pays.
+- **Ask Early, Ask Late, Ask Right**, [arXiv:2605.07937]. When clarification pays.
 - **Act or Escalate?**, [arXiv:2604.08588] and the learning-to-defer literature behind it.
 
-**AgentDojo is deliberately absent from this list.** Its threat model is adversarial prompt
+AgentDojo is deliberately absent from this list. Its threat model is adversarial prompt
 injection into untrusted data, not benign underspecification. Citing it as prior art here
 would be an error in the opposite direction from overclaiming.
 

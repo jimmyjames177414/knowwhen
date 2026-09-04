@@ -12,11 +12,11 @@
 
 </div>
 
-A policy that ignores every scenario and answers **VERIFY to all 120 of them scores 0.782**
-here. The demo run that ships with the repo scores 0.885, the smallest difference this
-dataset can detect is 0.109, and so the run prints **"not clear of the degenerate
-baselines"** and refuses to treat its own headline number as a result. Every run prints that
-bar, beside the model, in the same table. That is the whole design.
+A policy that ignores every scenario and answers VERIFY to all 120 of them scores **0.782**
+here. The demo run that ships with the repo scores 0.885. The smallest difference this
+dataset can detect is 0.109, so the run prints "not clear of the degenerate baselines" and
+refuses to treat its own headline number as a result. Every run prints that bar, beside the
+model, in the same table. That is the whole design.
 
 Reproduce the bar in one command, with no key, no network and no account:
 
@@ -46,10 +46,10 @@ majority-class       0.782     0.0%         100.0%   VERIFY, best on 54/120 item
 
 ## We did not invent the taxonomy, and here is who did
 
-**[AgentAtlas (arXiv:2605.20530)](https://arxiv.org/abs/2605.20530) published the six-state
+[AgentAtlas (arXiv:2605.20530)](https://arxiv.org/abs/2605.20530) published the six-state
 control-decision taxonomy, Act / Ask / Refuse / Stop / Confirm / Recover, in May 2026, and
 said plainly it was "positioned as a measurement-protocol vehicle, not a public benchmark
-release." This is the benchmark.** `ACT`, `ASK`, `ESCALATE` and `ABSTAIN` are their Act, Ask,
+release." This is the benchmark. `ACT`, `ASK`, `ESCALATE` and `ABSTAIN` are their Act, Ask,
 Confirm and Refuse/Stop. `VERIFY` and `SIMULATE` are the two classes we add. The full
 prior-art gate, including everything here that is *not* novel, is in
 [NOVELTY.md](NOVELTY.md).
@@ -109,13 +109,13 @@ FINDING: demo-synthetic-v1 is not clear of the degenerate baselines.
 written to results/01M1J49BD7MZNAC528WWCQZ6K9
 ```
 
-**Those numbers describe a hand-written fixture, not a model.** The cassette is generated
+Those numbers describe a hand-written fixture, not a model. The cassette is generated
 from a policy file that a person wrote (`examples/demo-policy.yaml`), deliberately shaped to
 put something in every branch. It exists so the pipeline can be demonstrated offline. It
 measures nothing about anything, `knowwhen submit` refuses it, and the schema rejects it.
 
-Note what the last block did anyway: it caught the fixture, and said so in the report rather
-than letting a 0.885 stand next to a 0.785 as though the difference meant something.
+The last block caught the fixture anyway, and said so in the report rather than letting a
+0.885 stand next to a 0.785 as though the difference meant something.
 
 Against something real:
 
@@ -139,7 +139,7 @@ uvx --from git+https://github.com/jimmyjames177414/knowwhen knowwhen run \
 
 A model can post a respectable EAS while being unsafe: seven items perfect and three harmful
 reads as 0.70. Hiding that in an average is exactly the dishonesty this benchmark exists to
-catch, so `EASReport` has no combined field and a test fails the build if one appears. A
+catch. `EASReport` has no combined field, and a test fails the build if one appears. A
 model that answers ASK to everything is caught by the other end, because 30 of the 120 items
 are benign controls where acting *is* the right answer.
 
@@ -170,13 +170,13 @@ classification, not confidence-versus-accuracy agreement.
 A benchmark a constant policy can win is not measuring what it claims to. That is not
 hypothetical: a validity audit of agent-safety benchmarks
 ([arXiv:2607.28685](https://arxiv.org/abs/2607.28685)) found a trivial always-positive policy
-scoring F1 0.690 on R-Judge, **beating five of twenty-one real models**.
+scoring F1 0.690 on R-Judge, beating five of twenty-one real models.
 
 So every run scores eight non-model policies over the same items and prints them in the same
 table as the model, never in an appendix. The table at the top of this file is that output,
 reproduced by `knowwhen baselines`.
 
-**A policy that answers VERIFY to everything scores 0.782 on this set.** VERIFY is the best
+A policy that answers VERIFY to everything scores 0.782 on this set. VERIFY is the best
 action on 54 of 120 items, so the constant is strong, and no model has demonstrated anything
 on EAS until it clears 0.782 by more than the MDE. The report names any baseline a run
 failed to clear.
@@ -198,7 +198,7 @@ noise does not belong in a table people read as a property of the benchmark.
 ## The 120 situations
 
 Written by hand, each with a credit vector, an unsafe set, a scenario-type tag and a
-rationale. **90 risky or ambiguous, 30 benign controls.**
+rationale. 90 risky or ambiguous, 30 benign controls.
 
 | Type | N | | Type | N |
 |---|---|---|---|---|
@@ -222,10 +222,10 @@ Who wrote them, what influenced them, and an honest contamination statement:
 
 Both are shipped and both are reported.
 
-- **`--mode choice`** asks with an explicit six-way menu and definitions, parsed
-  deterministically. Cheap, comparable, no mapper error. **It measures a proxy**: behaviour
-  under a menu, not behaviour in an agent loop.
-- **`--mode freeform`** puts tools on the table, never mentions the six classes, and
+- `--mode choice` asks with an explicit six-way menu and definitions, parsed
+  deterministically. Cheap and comparable, with no mapper error. **It measures a proxy**:
+  behaviour under a menu, not behaviour in an agent loop.
+- `--mode freeform` puts tools on the table, never mentions the six classes, and
   classifies the first move with an auditable rule cascade. Higher validity, and the mapper's
   accuracy on real model output is unmeasured.
 
@@ -286,42 +286,42 @@ Where a command below is written as a bare `knowwhen ...`, use whichever form yo
 [NOVELTY.md](NOVELTY.md) states the overlap before the difference, because the overlap is
 substantial and pretending otherwise is disprovable in one search.
 
-**[AgentAtlas](https://arxiv.org/abs/2605.20530)** (arXiv:2605.20530) published the six-class
+[AgentAtlas](https://arxiv.org/abs/2605.20530) (arXiv:2605.20530) published the six-class
 taxonomy with formal definitions. Not ours; adopted and cited above.
 
-**[Agentic Abstention](https://arxiv.org/abs/2606.28733)** (arXiv:2606.28733) is the
-strongest existing public multi-class artifact: **40★ of public Apache-2.0 code and 28,000+
-tasks**, already scoring three classes, answer / abstain / gather-more-information. We did not
+[Agentic Abstention](https://arxiv.org/abs/2606.28733) (arXiv:2606.28733) is the
+strongest existing public multi-class artifact: 40★ of public Apache-2.0 code and 28,000+
+tasks, already scoring three classes, answer / abstain / gather-more-information. We did not
 invent multi-class evaluation of epistemic action. **What we do is extend from three classes
 to six**, adding VERIFY and SIMULATE as scored classes and a partial-credit rule over them.
 
-**[Safety Sentry](https://arxiv.org/abs/2607.13594)** (arXiv:2607.13594) already published
+[Safety Sentry](https://arxiv.org/abs/2607.13594) (arXiv:2607.13594) already published
 the reframing argument, verbatim: *"this binary view conflates two distinct decisions… we
 reframe the problem as a per-instance three-way routing decision over {EXECUTE, ASK,
-REFUSE}."* **We did not originate the argument that binary abstention is insufficient.**
+REFUSE}."* We did not originate the argument that binary abstention is insufficient.
 
-**[ToolEmu](https://arxiv.org/abs/2309.15817)** (arXiv:2309.15817, 222★, last pushed
-2024-03-22) is the closest functional prior art and covers our territory **substantially**.
+[ToolEmu](https://arxiv.org/abs/2309.15817) (arXiv:2309.15817, 222★, last pushed
+2024-03-22) is the closest functional prior art and covers our territory substantially.
 Its threat model is ours verbatim, instructions that are *"underspecified"* from a benign
 principal; its worked example is the delete-the-wrong-files case; its rubric already
 penalises *"deleting all files without user confirmation."* The differences we claim are
-maintenance and scope, not originality of threat model: it has been dormant for two and a
+maintenance and scope, not originality of threat model. It has been dormant for two and a
 half years, it uses an LM judge where we use a deterministic scorer, and it scores safety and
 helpfulness rather than a multi-class epistemic choice.
 
-**[SafeAgentBench](https://arxiv.org/abs/2412.13178)** is a different world: a full-text
+[SafeAgentBench](https://arxiv.org/abs/2412.13178) is a different world: a full-text
 check found **zero** mentions of asking, confirming or verifying. It is strictly
 execute-versus-reject, on physical household hazards in a simulator.
 
-**AgentDojo is deliberately not claimed as prior art here.** Its threat model is an
+AgentDojo is deliberately not claimed as prior art here. Its threat model is an
 adversarial third party injecting instructions into untrusted data; ours is a benign but
 underspecified principal. Citing it would be an error in the opposite direction.
 
-What is left that is ours: a **public, contributable benchmark scoring the full 5 to 6-way
-choice**; **VERIFY and SIMULATE as scored classes**, which we could not find scored anywhere;
-the **cost-ordered partial-credit scoring rule**; **human-authored items**, where AgentAtlas's
-own stated limitation is single-model generation with no human validation; and a **documented
-contribution path**.
+What is left that is ours: a public, contributable benchmark scoring the full 5 to 6-way
+choice; VERIFY and SIMULATE as scored classes, which we could not find scored anywhere; the
+cost-ordered partial-credit scoring rule; human-authored items, where AgentAtlas's own stated
+limitation is single-model generation with no human validation; and a documented contribution
+path.
 
 ## What it will not do
 
@@ -340,13 +340,13 @@ contribution path**.
 - **120 items is a modest N.** The MDE printed on every run says what that costs: on the
   demo's spread, differences below about 0.11 EAS are not detectable. Two models a few points
   apart are not distinguishable here.
-- **VERIFY and SIMULATE are scored as declared intent**, not as performed actions. A model
+- VERIFY and SIMULATE are scored as declared intent, not as performed actions. A model
   that says it will check the replication lag scores the same whether or not it would have
   checked the right thing.
 - **Contamination cannot be ruled out.** These were written on 2026-09-02 and published here;
   every model trained afterwards may have seen them. We also cannot rule out that a model
   recognises the format as a safety evaluation.
-- **English only, single turn, generic infrastructure situations.** Nothing here transfers to
+- English only, single turn, generic infrastructure situations. Nothing here transfers to
   medical, legal or physical-safety domains and no claim is made that it does.
 - **A high EAS does not demonstrate that a model is safe.** The same validity audit found
   three broad benchmarks ranking the same eighteen models differently.
@@ -371,8 +371,8 @@ Admitted gaps, not stubs. Each is a `help-wanted` issue.
 Runs are written in **CXS v0.1** (`manifest.json`, `trials.jsonl`, `outcomes.jsonl`,
 `report.json`). `trials.jsonl` is append-only, so a crashed run resumes and any run can be
 re-scored without calling a model again. The schemas are vendored under `schemas/` and
-`tests/test_cxs_conformance.py` validates a real run against them. **No sibling package is
-imported and none imports this one**: interoperability here is a claim about files.
+`tests/test_cxs_conformance.py` validates a real run against them. No sibling package is
+imported and none imports this one: interoperability here is a claim about files.
 
 ## Contributing
 

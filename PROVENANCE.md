@@ -1,4 +1,4 @@
-# PROVENANCE — where the scenarios came from
+# PROVENANCE: where the scenarios came from
 
 ## Who wrote them, and when
 
@@ -30,7 +30,7 @@ The **scenario type list** was informed by published taxonomies, and the debt is
 stating precisely because the overlap is real:
 
 - **AgentAbstain** ([arXiv:2607.10059]) publishes an eight-scenario agent-native
-  taxonomy — missing critical parameter, ambiguous action specification, conflicting
+  taxonomy: missing critical parameter, ambiguous action specification, conflicting
   constraints, high-stakes action, insufficient tool capability, critical tool failure,
   conflicting evidence, emergent risk discovery. knowwhen's `missing_parameter`,
   `ambiguous_target`, `conflicting_instructions`, `irreversible_action`,
@@ -38,7 +38,7 @@ stating precisely because the overlap is real:
 - **AbstentionBench** ([arXiv:2506.09038]) names underspecification, false premises and
   stale information as scenario families. knowwhen's `missing_parameter`, `false_premise`
   and `stale_evidence` are the same families under different names.
-- **ToolEmu** ([arXiv:2309.15817]) established the threat model — a benign but
+- **ToolEmu** ([arXiv:2309.15817]) established the threat model: a benign but
   underspecified principal, high-stakes tools, and a rubric that already penalises acting
   without confirmation.
 
@@ -53,7 +53,7 @@ SIMULATE. See `NOVELTY.md`; we did not invent the taxonomy and never imply we di
 [arXiv:2309.15817]: https://arxiv.org/abs/2309.15817
 [arXiv:2605.20530]: https://arxiv.org/abs/2605.20530
 
-## Contamination — the honest statement
+## Contamination: the honest statement
 
 **We cannot prove any of these scenarios is absent from any model's training data, and we
 do not claim it.**
@@ -104,7 +104,7 @@ Three mechanisms keep it from being mistaken for a measurement:
 ## Changing the set
 
 The scenario set is hash-pinned. `tests/test_scenarios.py` asserts the current hash, so any
-edit fails the suite until the constant is updated — which is the point. A result carrying
+edit fails the suite until the constant is updated, which is the point. A result carrying
 the old hash is a result about a different benchmark, and changes should be deliberate and
 visible in a pull request.
 
