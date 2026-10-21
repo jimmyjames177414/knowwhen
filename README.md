@@ -340,7 +340,9 @@ path.
   guessing.
 - **120 items is a modest N.** The MDE printed on every run says what that costs: on the
   demo run's spread the minimum detectable difference is about 0.11 EAS, an upper bound, and
-  each run prints its own. Two models a few points apart are not distinguishable here.
+  each run prints its own. Two models a few points apart may not be distinguishable here; how
+  small a gap two specific models can show depends on how closely their runs agree, and is
+  below this ceiling.
 - VERIFY and SIMULATE are scored as declared intent, not as performed actions. A model
   that says it will check the replication lag scores the same whether or not it would have
   checked the right thing.

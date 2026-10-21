@@ -100,8 +100,9 @@ majority-class   EAS 0.782    unsafe 0.0%    over-caution 100.0%
 A constant that answers VERIFY to everything scores 0.782, because VERIFY is the best
 action on 54 of 120 items. Three consequences you should hold onto:
 
-1. **An EAS below about 0.89 has demonstrated nothing.** 0.782 plus the MDE of roughly
-   0.11 is the point at which a model has been shown to differ from a constant. The report
+1. **On the demo run's spread, the bar is about 0.89.** 0.782 plus that run's MDE of
+   roughly 0.11, an upper bound that each run prints for itself, is where a model is shown to
+   differ from a constant. The report
    names any baseline a run failed to clear, and the shipped synthetic demo fails this
    test, deliberately left visible rather than tuned away.
 2. It is a real weakness of the v1 item distribution, not a quirk of the metric. We are
@@ -122,8 +123,9 @@ expectation of 5), so a sampled figure would have carried more noise than signal
 ## The dataset
 
 - **120 items is small.** The MDE printed on every run says what that costs: at
-  n=116 with the demo's spread, differences below about 0.11 EAS are not detectable. Two
-  models a few points apart are not distinguishable on this set, and the report says so
+  n=116 with the demo's spread, the minimum detectable difference is about 0.11 EAS, an upper
+  bound, and each run prints its own. Two models a few points apart may not be distinguishable
+  on this set, and the report says so
   rather than letting a table imply otherwise.
 - The credit vectors are one person's judgement. See `docs/scoring.md`. Experts will
   disagree; disagreement is a finding and the rationales are shipped so it can be argued
