@@ -13,9 +13,10 @@
 </div>
 
 A policy that ignores every scenario and answers VERIFY to all 120 of them scores **0.782**
-here. The demo run that ships with the repo scores 0.885. The smallest difference this
-dataset can detect is 0.109, so the run prints "not clear of the degenerate baselines" and
-refuses to treat its own headline number as a result. Every run prints that bar, beside the
+here. The demo run that ships with the repo scores 0.885. On the demo run's spread the
+minimum detectable difference is about 0.11, an upper bound, and each run prints its own.
+The gap is under it, so the run prints "not clear of the degenerate baselines" and refuses
+to treat its own headline number as a result. Every run prints that bar, beside the
 model, in the same table. That is the whole design.
 
 Reproduce the bar in one command, with no key, no network and no account:
@@ -106,7 +107,7 @@ baselines        same items, same scorer   EAS / unsafe / over-caution
 FINDING: demo-synthetic-v1 is not clear of the degenerate baselines.
          See report.md. A gap under the MDE is not a demonstrated gap.
 
-written to results/01M1J49BD7MZNAC528WWCQZ6K9
+written to results/01M5F907SZ0VF6TJ2TV6KEHJ31
 ```
 
 Those numbers describe a hand-written fixture, not a model. The cassette is generated
@@ -338,8 +339,10 @@ path.
   [docs/validity.md](docs/validity.md). It reports what it cannot classify rather than
   guessing.
 - **120 items is a modest N.** The MDE printed on every run says what that costs: on the
-  demo's spread, differences below about 0.11 EAS are not detectable. Two models a few points
-  apart are not distinguishable here.
+  demo run's spread the minimum detectable difference is about 0.11 EAS, an upper bound, and
+  each run prints its own. Two models a few points apart may not be distinguishable here; how
+  small a gap two specific models can show depends on how closely their runs agree, and is
+  at or below this ceiling.
 - VERIFY and SIMULATE are scored as declared intent, not as performed actions. A model
   that says it will check the replication lag scores the same whether or not it would have
   checked the right thing.

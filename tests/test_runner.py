@@ -199,7 +199,26 @@ def test_experiment_ids_are_unique_and_time_sortable() -> None:
     ids = [new_experiment_id() for _ in range(50)]
     assert len(set(ids)) == 50
     assert all(len(i) == 26 for i in ids)
-    assert ids == sorted(ids) or len(set(i[:10] for i in ids)) > 1
+    assert ids == sorted(ids)
+
+
+def test_experiment_ids_stay_sorted_within_one_millisecond(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("knowwhen.runner._last_id", 0)
+    monkeypatch.setattr("knowwhen.runner.time.time", lambda: 1_900_000_000.0)
+    ids = [new_experiment_id() for _ in range(1000)]
+    assert len(set(ids)) == 1000
+    assert ids == sorted(ids)
+
+
+def test_experiment_ids_stay_sorted_when_the_clock_steps_back(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("knowwhen.runner._last_id", 0)
+    first = new_experiment_id()
+    monkeypatch.setattr("knowwhen.runner.time.time", lambda: 1_000_000_000.0)
+    later = [new_experiment_id() for _ in range(100)]
+    assert len(set(later)) == 100
+    assert [first, *later] == sorted([first, *later])
 
 
 def test_a_provider_error_becomes_a_recorded_trial_not_a_crash(
