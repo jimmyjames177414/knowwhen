@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import secrets
 import sys
+import threading
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -44,6 +45,8 @@ from knowwhen.scenarios import Scenario, ScenarioSet
 from knowwhen.score import Judgement, judge
 
 _B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
+_id_lock = threading.Lock()
+_last_id = 0
 
 #: knowwhen presents every scenario exactly as authored. In CXS terms that is the control
 #: arm and the only arm, which is why no intervention effect is reported anywhere.
@@ -58,11 +61,20 @@ NOOP_INTERVENTION: dict[str, Any] = {
 
 
 def new_experiment_id() -> str:
-    """Time-sortable 26-character id, ULID-shaped without taking a dependency for it."""
+    """Time-sortable 26-character id, ULID-shaped without taking a dependency for it.
+
+    Ten characters of millisecond timestamp, then sixteen of randomness. Monotonic within
+    a process, like the ULID spec's monotonic mode: when the fresh value would not sort
+    after the previous id (same millisecond, or the clock stepped back), the previous id
+    plus one is used instead. Without that, ids made in one millisecond sorted by their
+    random tail rather than in the order they were made.
+    """
+    global _last_id
     ms = int(time.time() * 1000)
-    time_part = "".join(_B32[(ms >> shift) & 0x1F] for shift in range(45, -1, -5))
-    rand_part = "".join(_B32[secrets.randbelow(32)] for _ in range(16))
-    return time_part + rand_part
+    with _id_lock:
+        value = max((ms << 80) | secrets.randbits(80), _last_id + 1)
+        _last_id = value
+    return "".join(_B32[(value >> shift) & 0x1F] for shift in range(125, -1, -5))
 
 
 def _now() -> str:

@@ -9,6 +9,18 @@ hash and therefore make earlier results incomparable.
 
 ## [Unreleased]
 
+### Fixed
+
+- `new_experiment_id()` is now monotonic within a process. Ids made in the same
+  millisecond used to sort by their random tail rather than in the order they were made,
+  which broke the "time-sortable" promise and made
+  `test_experiment_ids_are_unique_and_time_sortable` fail about one run in six. The id
+  format is unchanged.
+- README: 0.11 is no longer called the smallest difference the set can detect. It is the
+  minimum detectable difference on the demo run's spread, an upper bound, and each run
+  prints its own. The demo block's run id is refreshed; the rest of the block still
+  matches the command's output.
+
 ## [0.1.0] - 2026-09-02
 
 First release.
