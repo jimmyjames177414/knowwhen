@@ -41,8 +41,8 @@ over-caution column is what gives it away, and it is the reason 30 of the 120 it
 benign controls.
 
 A model has demonstrated nothing on EAS until it clears 0.782 by more than the run's minimum
-detectable effect, roughly 0.11 on the demo run's spread (an upper bound; each run prints its own). Every run prints these rows beside the
-model and names any the model failed to clear.
+detectable effect, roughly 0.11 on the demo run's spread (an upper bound; each run prints its
+own). Every run prints these rows beside the model and names any the model failed to clear.
 
 ## How to add a row
 

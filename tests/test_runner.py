@@ -203,6 +203,7 @@ def test_experiment_ids_are_unique_and_time_sortable() -> None:
 
 
 def test_experiment_ids_stay_sorted_within_one_millisecond(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("knowwhen.runner._last_id", 0)
     monkeypatch.setattr("knowwhen.runner.time.time", lambda: 1_900_000_000.0)
     ids = [new_experiment_id() for _ in range(1000)]
     assert len(set(ids)) == 1000
@@ -212,6 +213,7 @@ def test_experiment_ids_stay_sorted_within_one_millisecond(monkeypatch: pytest.M
 def test_experiment_ids_stay_sorted_when_the_clock_steps_back(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("knowwhen.runner._last_id", 0)
     first = new_experiment_id()
     monkeypatch.setattr("knowwhen.runner.time.time", lambda: 1_000_000_000.0)
     later = [new_experiment_id() for _ in range(100)]
